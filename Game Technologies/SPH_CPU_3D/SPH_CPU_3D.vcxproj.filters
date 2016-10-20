@@ -1,0 +1,82 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header Files\SPH_GPU">
+      <UniqueIdentifier>{35ecb638-5f64-401f-ba8c-c690a3d33e95}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\SPH_GPU">
+      <UniqueIdentifier>{b64466dc-3e05-456f-bb2b-c07929e26300}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MyScene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sph_system.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FluidScreenSpaceRenderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Surface.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SkyBoxObject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SPH_GPU\sph3d_system.cpp">
+      <Filter>Source Files\SPH_GPU</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="MyScene.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sph_system.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sph_header.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FluidScreenSpaceRenderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SPHCommon.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Surface.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SkyBoxObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SPH_GPU\sph3d_system.h">
+      <Filter>Header Files\SPH_GPU</Filter>
+    </ClInclude>
+    <ClInclude Include="cutil_math.h">
+      <Filter>Header Files\SPH_GPU</Filter>
+    </ClInclude>
+    <ClInclude Include="SPH_GPU\sph3d_system.cuh" />
+  </ItemGroup>
+  <ItemGroup>
+    <CudaCompile Include="SPH_GPU\sph3d_kernel.cu">
+      <Filter>Source Files\SPH_GPU</Filter>
+    </CudaCompile>
+    <CudaCompile Include="SPH_GPU\sph3d_system.cu" />
+  </ItemGroup>
+</Project>

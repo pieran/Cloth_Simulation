@@ -1,0 +1,194 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header Files\ClothSim">
+      <UniqueIdentifier>{79db2344-5c27-4142-b0aa-5af0d26ad620}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ClothSim">
+      <UniqueIdentifier>{ffa7bfc8-77de-4cb0-86fd-356c38839103}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\AMatrix Structs">
+      <UniqueIdentifier>{6ef641d9-996c-4cb2-be8f-179aa8e3fae6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\AMatrix Structs">
+      <UniqueIdentifier>{e30dde97-95c6-467b-9b35-2945a4c77e30}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Scenarios">
+      <UniqueIdentifier>{b07a7186-dd60-48fb-9715-bbe712a44375}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MyScene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ClothRenderObject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VideoEncoder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphObject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ProfilingTimer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FEM3NodedLMA.cpp">
+      <Filter>Source Files\ClothSim</Filter>
+    </ClCompile>
+    <ClCompile Include="FEM3Noded.cpp">
+      <Filter>Source Files\ClothSim</Filter>
+    </ClCompile>
+    <ClCompile Include="FEM3NodedFast.cpp">
+      <Filter>Source Files\ClothSim</Filter>
+    </ClCompile>
+    <ClCompile Include="FEM6Noded.cpp">
+      <Filter>Source Files\ClothSim</Filter>
+    </ClCompile>
+    <ClCompile Include="FEBase.cpp">
+      <Filter>Source Files\ClothSim</Filter>
+    </ClCompile>
+    <ClCompile Include="ClothScenarioViewer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="common.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FEImprovedRotations.cpp">
+      <Filter>Source Files\ClothSim</Filter>
+    </ClCompile>
+    <ClCompile Include="FEDefault.cpp">
+      <Filter>Source Files\ClothSim</Filter>
+    </ClCompile>
+    <ClCompile Include="ClothBase.cpp">
+      <Filter>Source Files\ClothSim</Filter>
+    </ClCompile>
+    <ClCompile Include="SimulationProfiler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PBD.cpp">
+      <Filter>Source Files\ClothSim</Filter>
+    </ClCompile>
+    <ClCompile Include="XPBD.cpp">
+      <Filter>Source Files\ClothSim</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="MyScene.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mcg.h">
+      <Filter>Header Files\ClothSim</Filter>
+    </ClInclude>
+    <ClInclude Include="EigenDefines.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ClothDesignEntity.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ClothRenderObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mpcg.h">
+      <Filter>Header Files\ClothSim</Filter>
+    </ClInclude>
+    <ClInclude Include="VideoEncoder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="common.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ProfilingTimer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FECommon.h">
+      <Filter>Header Files\ClothSim</Filter>
+    </ClInclude>
+    <ClInclude Include="FEM3NodedLMA.h">
+      <Filter>Header Files\ClothSim</Filter>
+    </ClInclude>
+    <ClInclude Include="SparseRowMatrix.h">
+      <Filter>Header Files\AMatrix Structs</Filter>
+    </ClInclude>
+    <ClInclude Include="FEM3Noded.h">
+      <Filter>Header Files\ClothSim</Filter>
+    </ClInclude>
+    <ClInclude Include="LMAMatrix.h">
+      <Filter>Header Files\AMatrix Structs</Filter>
+    </ClInclude>
+    <ClInclude Include="FEM3NodedFast.h">
+      <Filter>Header Files\ClothSim</Filter>
+    </ClInclude>
+    <ClInclude Include="FEM6Noded.h">
+      <Filter>Header Files\ClothSim</Filter>
+    </ClInclude>
+    <ClInclude Include="PArray.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FEBase.h">
+      <Filter>Header Files\ClothSim</Filter>
+    </ClInclude>
+    <ClInclude Include="FEDefault.h">
+      <Filter>Header Files\ClothSim</Filter>
+    </ClInclude>
+    <ClInclude Include="ClothScenarioViewer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ScenarioStretchVertical.h">
+      <Filter>Header Files\Scenarios</Filter>
+    </ClInclude>
+    <ClInclude Include="ClothScenario.h">
+      <Filter>Header Files\Scenarios</Filter>
+    </ClInclude>
+    <ClInclude Include="ScenarioParachute.h">
+      <Filter>Header Files\Scenarios</Filter>
+    </ClInclude>
+    <ClInclude Include="FEImprovedRotations.h">
+      <Filter>Header Files\ClothSim</Filter>
+    </ClInclude>
+    <ClInclude Include="ClothBase.h">
+      <Filter>Header Files\ClothSim</Filter>
+    </ClInclude>
+    <ClInclude Include="SimulationProfiler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PBD.h">
+      <Filter>Header Files\ClothSim</Filter>
+    </ClInclude>
+    <ClInclude Include="ScenarioCutting.h">
+      <Filter>Header Files\Scenarios</Filter>
+    </ClInclude>
+    <ClInclude Include="ScenarioCollisionYusef.h">
+      <Filter>Header Files\Scenarios</Filter>
+    </ClInclude>
+    <ClInclude Include="XPBD.h">
+      <Filter>Header Files\ClothSim</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="mpcg.inl">
+      <Filter>Header Files\ClothSim</Filter>
+    </None>
+    <None Include="ClothDesignEntity.inl">
+      <Filter>Header Files</Filter>
+    </None>
+  </ItemGroup>
+</Project>

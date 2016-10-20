@@ -1,0 +1,173 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="DebugOpenMP|Win32">
+      <Configuration>DebugOpenMP</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{BB922C45-CC35-452B-BC09-ACAC238455C6}</ProjectGuid>
+    <RootNamespace>EigenClothSim</RootNamespace>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugOpenMP|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='DebugOpenMP|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>..\..\ffmpeg\include;..\..\GLEW\include;..\..\SOIL;..\..\;$(IncludePath)</IncludePath>
+    <LibraryPath>..\..\ffmpeg\lib;..\..\GLEW\lib;..\..\SOIL\$(Configuration);..\$(Configuration)\;.\nclgl\$(Configuration)\;..\..\GLEW\lib\$(Configuration);$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugOpenMP|Win32'">
+    <IncludePath>..\..\ffmpeg\include;..\..\GLEW\include;..\..\SOIL;..\..\;$(IncludePath)</IncludePath>
+    <LibraryPath>..\..\ffmpeg\lib;..\..\GLEW\lib\Debug;..\..\SOIL\Debug\;..\Debug\;.\nclgl\$(Configuration)\;..\..\GLEW\lib\Debug;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IncludePath>..\..\ffmpeg\include;..\..\GLEW\include;..\..\SOIL;..\..\;$(IncludePath)</IncludePath>
+    <LibraryPath>..\..\ffmpeg\lib;..\..\GLEW\lib;..\..\SOIL\$(Configuration);..\$(Configuration)\;.\nclgl\$(Configuration)\;..\..\GLEW\lib\$(Configuration);$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <OpenMPSupport>false</OpenMPSupport>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>swscale.lib;swresample.lib;avformat.lib;avutil.lib;avcodec.lib;ncltech.lib;nclgl.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugOpenMP|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <OpenMPSupport>true</OpenMPSupport>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>swscale.lib;swresample.lib;avformat.lib;avutil.lib;avcodec.lib;ncltech.lib;nclgl.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <OpenMPSupport>true</OpenMPSupport>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>swresample.lib;swscale.lib;avformat.lib;avutil.lib;avcodec.lib;ncltech.lib;nclgl.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <Profile>true</Profile>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="ClothScenarioViewer.cpp" />
+    <ClCompile Include="common.cpp" />
+    <ClCompile Include="FEBase.cpp" />
+    <ClCompile Include="ClothRenderObject.cpp" />
+    <ClCompile Include="FEDefault.cpp" />
+    <ClCompile Include="FEImprovedRotations.cpp" />
+    <ClCompile Include="FEM3NodedFast.cpp" />
+    <ClCompile Include="FEM3NodedLMA.cpp" />
+    <ClCompile Include="FEM3Noded.cpp" />
+    <ClCompile Include="FEM6Noded.cpp" />
+    <ClCompile Include="GraphObject.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="MyScene.cpp" />
+    <ClCompile Include="PBD.cpp" />
+    <ClCompile Include="SimulationProfiler.cpp" />
+    <ClCompile Include="ProfilingTimer.cpp" />
+    <ClCompile Include="ClothBase.cpp" />
+    <ClCompile Include="VideoEncoder.cpp" />
+    <ClCompile Include="XPBD.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ClothBase.h" />
+    <ClInclude Include="ScenarioCollisionYusef.h" />
+    <ClInclude Include="ClothScenario.h" />
+    <ClInclude Include="ClothScenarioViewer.h" />
+    <ClInclude Include="FEBase.h" />
+    <ClInclude Include="ClothRenderObject.h" />
+    <ClInclude Include="common.h" />
+    <ClInclude Include="EigenDefines.h" />
+    <ClInclude Include="FECommon.h" />
+    <ClInclude Include="FEDefault.h" />
+    <ClInclude Include="FEImprovedRotations.h" />
+    <ClInclude Include="FEM3NodedFast.h" />
+    <ClInclude Include="FEM3NodedLMA.h" />
+    <ClInclude Include="ClothDesignEntity.h" />
+    <ClInclude Include="FEM3Noded.h" />
+    <ClInclude Include="FEM6Noded.h" />
+    <ClInclude Include="GraphObject.h" />
+    <ClInclude Include="LMAMatrix.h" />
+    <ClInclude Include="mcg.h" />
+    <ClInclude Include="mpcg.h" />
+    <ClInclude Include="MyScene.h" />
+    <ClInclude Include="PArray.h" />
+    <ClInclude Include="PBD.h" />
+    <ClInclude Include="ScenarioCutting.h" />
+    <ClInclude Include="SimulationProfiler.h" />
+    <ClInclude Include="ProfilingTimer.h" />
+    <ClInclude Include="ScenarioParachute.h" />
+    <ClInclude Include="ScenarioStretchVertical.h" />
+    <ClInclude Include="SparseRowMatrix.h" />
+    <ClInclude Include="VideoEncoder.h" />
+    <ClInclude Include="XPBD.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClothDesignEntity.inl" />
+    <None Include="mpcg.inl" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

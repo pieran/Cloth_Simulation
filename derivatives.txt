@@ -1,0 +1,110 @@
+P2.x = x*(qx*qx+qw*qw-qy*qy- qz*qz) + y*(2*qx*qy- 2*qw*qz) + z*(2*qx*qz+ 2*qw*qy)
+P2.y = x*(2*qw*qz + 2*qx*qy) + y*(qw*qw - qx*qx+ qy*qy - qz*qz)+ z*(-2*qw*qx+ 2*qy*qz)
+P2.z = x*(-2*qw*qy+ 2*qx*qz) + y*(2*qw*qx+ 2*qy*qz)+ z*(qw*qw - qx*qx- qy*qy+ qz*qz)
+
+
+
+d/QiQj = y*2*qx*qy
+       = x*(2*qw*qz + 2*qx*qy) + y*(qw*qw - qx*qx+ qy*qy - qz*qz)+ z*(-2*qw*qx+ 2*qy*qz)
+       = x*(-2*qw*qy+ 2*qx*qz) + y*(2*qw*qx+ 2*qy*qz)+ z*(qw*qw - qx*qx- qy*qy+ qz*qz)
+
+
+
+
+D/Qi  = x*(2*qx) + y*(2*qx*qy) + z*(2*qx*qz)
+	  = x*(2*qx*qy) + y*(-qx*qx)+ z*(-2*qw*qx)
+	  = x*(2*qx*qz) + y*(2*qw*qx)+ z*(-qx*qx)
+	  
+D/Qj  = x*(-2*qy) + y*(2*qx) + z*(2*qw)
+	  = x*(2*qx) + y*(2*qy)+ z*(2*qz)
+	  = x*(-2*qw) + y*(2*qz)+ z*(-2*qy)
+	  
+D/Qk  = x*(-2*qz) + y*(-2*qw) + z*(2*qx)
+	  = x*(2*qw) + y*(-2*qz)+ z*(2*qy)
+	  = x*(2*qx) + y*(2*qy)+ z*(2*qz)
+	  
+D/Qw  = x*(2*qw) + y*(-2*qz) + z*(2*qy)
+	  = x*(2*qz) + y*(2*qw)+ z*(-2*qx)
+	  = x*(-2*qy) + y*(2*qx)+ z*(2*qw)
+	  
+	
+	
+	
+
+	
+D2/QiQi  = x*2
+		 = y*-2
+	     = z*-2
+		 
+D2/QiQj  = y*2
+	     = x*2
+	     = 0
+
+D2/QiQk  = z*2
+	     = 0
+	     = x*2
+		 
+D2/QiQw  = 0
+	     = z*-2
+	     = y*2
+		 
+		 
+		 
+D2/QjQi  = y*2
+	     = x*2
+	     = 0
+		 
+D2/QjQj  = x*-2
+	     = y*2
+	     = z*-2
+
+D2/QjQk  = 0
+	     = z*2
+	     = y*2	
+
+D2/QjQw  = z*2
+	     = 0
+	     = x*-2
+
+		 
+		 
+		 
+D2/QkQi  = z*2
+	  = 0
+	  = x*2
+		 
+D2/QkQj  = 0
+	  = z*2
+	  = y*2
+
+D2/QkQk  = x*-2
+	  = y*-2
+	  = z*2
+
+D2/QkQw  = y*-2
+	  = x*2
+	  = 0
+	  
+	  
+	  
+	  
+D2/QwQi  = 0
+	  = z*-2
+	  = y*2
+		 
+D2/QwQj  = z*2
+	  = 0
+	  = x*-2
+
+D2/QwQk  = y*-2
+	  = x*2
+	  = 0
+
+D2/QwQw  = x*2
+	  = y*2
+	  = z*2
+		 
+		 
+		 
+		 
+	  
