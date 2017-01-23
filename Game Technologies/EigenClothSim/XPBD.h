@@ -36,6 +36,8 @@ protected:
 	bool BuildBendingConstraint(uint idxA, uint idxB, uint idxC, uint idxD, float k, XPBDBendingConstraint& out_constraint);
 #endif
 
+	void SolveDistanceConstraint(float weighting, XPBDDistanceConstraint& c);
+
 	void SolveDistanceConstraints(float weighting);
 	void SolveBendingConstraints(float weighting);
 	void SolveSphereConstraints(float weighting);
@@ -55,6 +57,7 @@ public:
 	PArray<XPBDBendingConstraint> m_ConstraintsBending;
 	std::vector<XPBDSphereConstraint> m_SphereConstraints; //sphere collision shapes
 
+	std::vector<uint> m_DistanceBatches;
 
 	std::vector<std::vector<uint>> m_LookupsDistance;
 	std::vector<std::vector<uint>> m_LookupsBending;

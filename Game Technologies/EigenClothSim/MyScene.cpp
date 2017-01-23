@@ -110,7 +110,7 @@ void MyScene::InitialiseCloth()
 
 	//m_ClothViewer->AddScenario("FEM 11x11 0.5dt", new ScenarioParachute(new FEDefault(), 11, 11, Vector2(2.0f, 2.0f), Vector3(-1.0f, 1.0f, -1.5f)));
 	//m_ClothViewer->AddScenario("FEM 51x51 0.25dt", new ScenarioCollisionYusef(new FEDefault(), 51, 51, Vector2(1.0f, 1.0f), Vector3(1.0f, 1.0f, -1.5f)));
-	m_ClothViewer->AddScenario("FEM 51x51 0.25dt", new ScenarioCollisionYusef(new XPBD(), 401, 401, Vector2(1.0f, 1.0f), Vector3(0.0f, 3.0f, -1.5f)));
+	m_ClothViewer->AddScenario("FEM 51x51 0.25dt", new ScenarioCollisionYusef(new XPBD(), 64, 64, Vector2(1.0f, 1.0f), Vector3(0.0f, 3.0f, -1.5f)));
 	//m_ClothViewer->AddScenario("FEM 101x101 0.25dt", new ScenarioCollisionYusef(new FEImprovedRotations(true), 101, 101, Vector2(1.0f, 1.0f), Vector3(0.0f, 3.0f, -1.5f)));
 	//m_ClothViewer->AddScenario("FEM 151x151 0.25dt", new ScenarioCollisionYusef(new FEImprovedRotations(true), 201, 201, Vector2(1.0f, 1.0f), Vector3(1.5f, 3.0f, -1.5f)));
 

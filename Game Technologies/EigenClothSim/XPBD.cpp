@@ -3,7 +3,7 @@
 
 XPBD::XPBD() : ClothBase()
 {
-	m_SolverIterations = 560;
+	m_SolverIterations = 40;
 }
 
 XPBD::~XPBD()
@@ -55,19 +55,19 @@ void XPBD::InitializePBDConstraints(int num_width, int num_height)
 	XPBDBendingConstraint bc;
 
 	// Horizontal
-	int u = num_width;
+	/*int u = num_width;
 	int v = num_height;
 	int l1, l2;
 	for (l1 = 0; l1 < v; l1++)	// v
 		for (l2 = 0; l2 < (u - 1); l2++) {
-			if (BuildDistanceConstraint((l1 * u) + l2, (l1 * u) + l2 + 1, m_MaterialShear, dc))
+			if (BuildDistanceConstraint((l1 * u) + l2, (l1 * u) + l2 + 1, m_MaterialStretchWeft, dc))
 				d_constraints.push_back(dc);
 		}
 
 	// Vertical
 	for (l1 = 0; l1 < (u); l1++)
 		for (l2 = 0; l2 < (v - 1); l2++) {
-			if (BuildDistanceConstraint((l2 * u) + l1, ((l2 + 1) * u) + l1, m_MaterialShear, dc))
+			if (BuildDistanceConstraint((l2 * u) + l1, ((l2 + 1) * u) + l1, m_MaterialStretchWarp, dc))
 				d_constraints.push_back(dc);
 		}
 
@@ -79,8 +79,87 @@ void XPBD::InitializePBDConstraints(int num_width, int num_height)
 				d_constraints.push_back(dc);
 			if (BuildDistanceConstraint(((l1 + 1) * u) + l2, (l1 * u) + l2 + 1, m_MaterialShear, dc))
 				d_constraints.push_back(dc);
+		}*/
+
+
+
+	std::vector<std::vector<XPBDDistanceConstraint>> distance_batches(8);
+	std::vector<std::vector<XPBDBendingConstraint>> bending_batches(8);
+
+	int u = num_width;
+	int v = num_height;
+	int l1, l2;
+	for (l1 = 0; l1 < v; l1++)	// v
+		for (l2 = 0; l2 < (u - 1); l2++) {
+			if (BuildDistanceConstraint((l1 * u) + l2, (l1 * u) + l2 + 1, m_MaterialStretchWeft, dc))
+				if (((l1 + l2) % 2) == 0)
+				{
+					distance_batches[0].push_back(dc);
+				}
+				else
+				{
+					distance_batches[1].push_back(dc);
+				}
 		}
 
+	// Vertical
+	for (l1 = 0; l1 < (u); l1++)
+		for (l2 = 0; l2 < (v - 1); l2++) {
+			if (BuildDistanceConstraint((l2 * u) + l1, ((l2 + 1) * u) + l1, m_MaterialStretchWarp, dc))
+				if (((l1 + l2) % 2) == 0)
+				{
+					distance_batches[0].push_back(dc);
+				}
+				else
+				{
+					distance_batches[1].push_back(dc);
+				}
+		}
+
+
+	// Shearing distance constraint
+	for (l1 = 0; l1 < (v - 1); l1++)
+		for (l2 = 0; l2 < (u - 1); l2++) {
+
+			if (BuildDistanceConstraint((l1 * u) + l2, ((l1 + 1) * u) + l2 + 1, m_MaterialShear, dc))
+				if ((l1 % 2) == 0)
+				{
+					distance_batches[4].push_back(dc);
+				}
+				else
+				{
+					distance_batches[5].push_back(dc);
+				}
+
+			if (BuildDistanceConstraint(((l1 + 1) * u) + l2, (l1 * u) + l2 + 1, m_MaterialShear, dc))
+				if ((l1 % 2) == 0)
+				{
+					distance_batches[6].push_back(dc);
+				}
+				else
+				{
+					distance_batches[7].push_back(dc);
+				}
+		}
+
+
+
+	d_constraints.clear();
+	m_DistanceBatches.clear();
+	m_DistanceBatches.resize(16);
+
+	uint boffset = 0;
+	for (int i = 0; i < 8; ++i)
+	{
+		m_DistanceBatches[i*2] = d_constraints.size();
+
+		for (int j = 0; j < distance_batches[i].size(); ++j)
+		{
+			d_constraints.push_back(distance_batches[i][j]);
+		}
+
+		m_DistanceBatches[i*2+1] = d_constraints.size();
+	}
 
 
 #ifdef USE_TRIANGLE_BENDING_CONSTRAINT
@@ -203,7 +282,21 @@ void XPBD::ComputeVelocity(float subtimestep, const Vector3* in_clothpos, const 
 	float weighting = 1.0f;
 	for (uint si = 0; si < m_SolverIterations; ++si) {
 		//weighting = 1.0f - (float)(si * si) / (float)(m_SolverIterations * m_SolverIterations);
-		SolveDistanceConstraints(weighting);
+		
+		for (int i = 0; i < 8; ++i)
+		{
+			int start = m_DistanceBatches[i * 2];
+			int len = m_DistanceBatches[i * 2 + 1] - start;
+
+#pragma omp parallel for
+			for (int j = 0; j < len; ++j)
+			{
+				SolveDistanceConstraint(weighting, m_ConstraintsDistance[start + j]);
+			}
+
+		}
+		
+		//SolveDistanceConstraints(weighting);
 		SolveBendingConstraints(weighting);
 		SolveSphereConstraints(weighting);
 	}
@@ -292,50 +385,51 @@ bool XPBD::BuildBendingConstraint(uint idxA, uint idxB, uint idxC, uint idxD, fl
 }
 #endif 
 
-void XPBD::SolveDistanceConstraints(float weighting)
+void XPBD::SolveDistanceConstraint(float weighting, XPBDDistanceConstraint& c)
 {
 	Vector3 dir, dP;
 	float len;
+
+	dir = m_PhyxelPosNew[c.p1] - m_PhyxelPosNew[c.p2];
+
+	float invmassA = m_PhyxelIsStatic[c.p1] ? 0.0f : m_PhyxelInvMass[c.p1];
+	float invmassB = m_PhyxelIsStatic[c.p2] ? 0.0f : m_PhyxelInvMass[c.p2];
+	float w = invmassA + invmassB;
+
+	if (w > 0.0f)
+	{
+		len = dir.Length();
+		//if (len <= 0.00001f)
+		//	return;
+
+		dP = dir / len * (c.k * (len - c.rest_length));
+		dP = dP / w;
+
+
+		//float lambda = (len - c.rest_length - c.k * c.lamdaij) / (w + c.k);
+		//dP = dir / len * lambda;
+		//c.lamdaij += lambda;
+
+
+		m_PhyxelPosNew[c.p1] -= dP * invmassA;
+		m_PhyxelPosNew[c.p2] += dP * invmassB;
+	}
+	else
+	{
+		//	m_LargeArrayParallisation[i * 2] = Vector3(0.0f, 0.0f, 0.0f);
+		//	m_LargeArrayParallisation[i * 2 + 1] = Vector3(0.0f, 0.0f, 0.0f);
+	}
+}
+
+void XPBD::SolveDistanceConstraints(float weighting)
+{
+
 
 	int i, ilen = m_ConstraintsDistance.size();
 //#pragma omp parallel for private(i, len, dir, dP)
 	for (i = 0; i < ilen; ++i) {
 		XPBDDistanceConstraint& c = m_ConstraintsDistance[i];
-		dir = m_PhyxelPosNew[c.p1] - m_PhyxelPosNew[c.p2];
-
-		float invmassA = m_PhyxelIsStatic[c.p1] ? 0.0f : m_PhyxelInvMass[c.p1];
-		float invmassB = m_PhyxelIsStatic[c.p2] ? 0.0f : m_PhyxelInvMass[c.p2];
-		float w = invmassA + invmassB;
-
-		if (w > 0.0f)
-		{
-			len = dir.Length();
-			//if (len <= 0.00001f)
-			//	return;
-
-			//dP = dir / len * (c.k_prime * (len - c.rest_length));
-			//dP = dP / w;
-
-			//m_LargeArrayParallisation[i * 2] = -dP * invmassA;
-			//m_LargeArrayParallisation[i * 2 + 1] = dP * invmassB;
-			//m_PhyxelPosNew[c.p1] -= dP * m_PhyxelInvMass[c.p1];
-			//m_PhyxelPosNew[c.p2] += dP * m_PhyxelInvMass[c.p2];
-
-			float lambda = (len - c.rest_length - c.k * c.lamdaij) / (w + c.k);
-			dP = dir / len * lambda;
-
-
-			c.lamdaij += lambda;
-
-			
-			m_PhyxelPosNew[c.p1] -= dP * invmassA;
-			m_PhyxelPosNew[c.p2] += dP * invmassB;
-		}
-		else
-		{
-		//	m_LargeArrayParallisation[i * 2] = Vector3(0.0f, 0.0f, 0.0f);
-		//	m_LargeArrayParallisation[i * 2 + 1] = Vector3(0.0f, 0.0f, 0.0f);
-		}
+		SolveDistanceConstraint(weighting, c);
 	}
 
 	ilen = (int)m_NumPhyxels;
