@@ -103,6 +103,12 @@ public:
 		return Vector2(-x, -y);
 	}
 
+	inline Vector2 operator*(const Vector2& a) {
+		return Vector2(x * a.x, y * a.y);
+	}
+	inline Vector2 operator/(const Vector2& a) {
+		return Vector2(x / a.x, y / a.y);
+	}
 	inline Vector2& operator+=(const Vector2& a){
 		x += a.x;
 		y += a.y;

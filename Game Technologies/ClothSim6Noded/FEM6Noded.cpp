@@ -974,15 +974,93 @@ void FEM6Noded::Render_DrawingToVisualiser()
 		NCLDebug::DrawThickLine(b, c, 0.002f, Vector4(0.0f, 0.0f, 0.0f, 1.0f));
 		NCLDebug::DrawThickLine(a, c, 0.002f, Vector4(0.0f, 0.0f, 0.0f, 1.0f));*/
 
-		NCLDebug::DrawThickLine(a, ab, 0.02f, Vector4(0.0f, 0.0f, 0.0f, 1.0f));
-		NCLDebug::DrawThickLine(ab, b, 0.02f, Vector4(0.0f, 0.0f, 0.0f, 1.0f));
-		NCLDebug::DrawThickLine(b, bc, 0.02f, Vector4(0.0f, 0.0f, 0.0f, 1.0f));
-		NCLDebug::DrawThickLine(bc, c, 0.02f, Vector4(0.0f, 0.0f, 0.0f, 1.0f));
-		NCLDebug::DrawThickLine(c, ac, 0.02f, Vector4(0.0f, 0.0f, 0.0f, 1.0f));
-		NCLDebug::DrawThickLine(ac, a, 0.02f, Vector4(0.0f, 0.0f, 0.0f, 1.0f));
+		NCLDebug::DrawThickLine(a, ab, 0.02f, Vector4(0.0f, 0.0f, 0.0f, 0.3f));
+		NCLDebug::DrawThickLine(ab, b, 0.02f, Vector4(0.0f, 0.0f, 0.0f, 0.3f));
+		NCLDebug::DrawThickLine(b, bc, 0.02f, Vector4(0.0f, 0.0f, 0.0f, 0.3f));
+		NCLDebug::DrawThickLine(bc, c, 0.02f, Vector4(0.0f, 0.0f, 0.0f, 0.3f));
+		NCLDebug::DrawThickLine(c, ac, 0.02f, Vector4(0.0f, 0.0f, 0.0f, 0.3f));
+		NCLDebug::DrawThickLine(ac, a, 0.02f, Vector4(0.0f, 0.0f, 0.0f, 0.3f));
 
-		NCLDebug::DrawHairLine(ab, bc, Vector4(0.0f, 0.0f, 0.0f, 0.5f));
-		NCLDebug::DrawHairLine(ab, ac, Vector4(0.0f, 0.0f, 0.0f, 0.5f));
-		NCLDebug::DrawHairLine(ac, bc, Vector4(0.0f, 0.0f, 0.0f, 0.5f));
+		//NCLDebug::DrawHairLine(ab, bc, Vector4(0.0f, 0.0f, 0.0f, 0.5f));
+		//NCLDebug::DrawHairLine(ab, ac, Vector4(0.0f, 0.0f, 0.0f, 0.5f));
+		//NCLDebug::DrawHairLine(ac, bc, Vector4(0.0f, 0.0f, 0.0f, 0.5f));
+
+
+
+
+
+
+
+		Vector3 sp = Vector3(1.f, 1.f, 1.f) / 3.f;
+		Vector3 centre = (a + b + c + ab + ac + bc) / 6.f;
+
+		Vector3 vxi, veta;
+
+		vxi = a * 4.f * sp.x - 1.f;
+		vxi += b * 0.0f;
+		vxi += c * (-4.f * sp.z + 1.f);
+		vxi += ab * 4.f * sp.y;
+		vxi += bc * (-4.f * sp.y);
+		vxi += ac * 4.f * (sp.z - sp.x);
+
+		veta = a * 0.0f;
+		veta += b * 4.f * sp.y - 1.f;
+		veta += c * (-4.f * sp.z + 1.f);
+		veta += ab * 4.f * sp.x;
+		veta += bc * 4.f * (sp.z - sp.y);
+		veta += ac * (-4.f * sp.x);
+
+		veta.Normalise();
+		vxi.Normalise();
+
+		int nsteps = 16;
+		float step = 1.f / float(nsteps);
+
+		auto get_point = [&](int ix, int iy)
+		{
+			float x = ix * step;
+			float y = iy * step;
+
+			Vector3 gp = Vector3(x, y, 0.f);
+			gp.z = 1.f - (x + y);
+
+
+			Vector3 p;
+			p = a * (gp.x * (2.f * gp.x - 1.f));
+			p += b * (gp.y * (2.f * gp.y - 1.f));
+			p += c * (gp.z * (2.f * gp.z - 1.f));
+			p += ab * (4.f * gp.x * gp.y);
+			p += bc * (4.f * gp.y * gp.z);
+			p += ac * (4.f * gp.x * gp.z);
+			
+			return p;
+		};
+
+		for (int ix = 0; ix <= nsteps; ++ix)
+		{
+			Vector3 oldp;
+			for (int iy = 0; iy <= (nsteps - ix); ++iy)
+			{
+				Vector3 p = get_point(ix, iy);
+
+				
+
+				if (iy > 0)
+				{
+					NCLDebug::DrawHairLine(p, oldp, Vector4(0.f, 0.f, 1.f, 1.f));		
+				}
+
+				if (ix > 0)
+				{
+					Vector3 p3 = get_point(ix - 1, iy);
+
+					NCLDebug::DrawHairLine(p, p3, Vector4(0.f, 0.f, 1.f, 1.f));
+					if (iy > 0)
+						NCLDebug::DrawHairLine(oldp, p3, Vector4(0.f, 0.f, 1.f, 1.f));
+				}
+
+				oldp = p;
+			}
+		}
 	}
 }

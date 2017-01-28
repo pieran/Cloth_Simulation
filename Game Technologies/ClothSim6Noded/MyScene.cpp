@@ -85,7 +85,7 @@ void MyScene::OnResize()
 void MyScene::InitialiseCloth()
 {
 	const Matrix4 transform = Matrix4();// Matrix4::Scale(Vector3(0.75f, 0.75f, 1.0f));
-	const uint visual_subdivisions = 4;
+	const uint visual_subdivisions = 2;
 	const uint subdivisions = visual_subdivisions * 2 + 1;
 
 	uint num_verts = subdivisions * subdivisions;
@@ -119,7 +119,7 @@ void MyScene::InitialiseCloth()
 				(float(x) * divisor_scalar),
 				(float(y) * divisor_scalar)
 				);
-			vertices[count].isStatic = (y == 0 || y == subdivisions - 1);// && (x == 0 || x == subdivisions - 1);
+			vertices[count].isStatic = (y == 0 || y == subdivisions - 1) && (x == 0 || x == subdivisions - 1);
 			count++;
 		}
 	}
@@ -206,9 +206,12 @@ void MyScene::RenderScene()
 
 bool m_OrthoMode = false;
 float m_OrthoScale = 2.5f;
+
+bool dragged = false;
+float drag_depth = 0.f;
+uint drag_idx = 0;
 void MyScene::UpdateScene(float dt)
 {
-	Scene::UpdateScene(dt);
 
 	if (!m_SimPaused)
 		m_Sim->Simulation_StepSimulation(m_SimTimestep);
@@ -352,6 +355,64 @@ void MyScene::UpdateScene(float dt)
 			m_GraphObjectSolver->SetVisibility(m_HudVisibility < 1);
 		}
 	}
+
+
+
+
+	Vector2 mousePos = Window::GetWindow().GetMousePosition();
+	Vector2 windowTrans = Window::GetWindow().GetScreenSize();
+	mousePos.y = windowTrans.y - mousePos.y;
+
+
+	Matrix4 projView = projMatrix * viewMatrix;
+	const float epsilon = 10.f * 10.f;
+
+	if (!dragged || !Window::GetMouse()->ButtonDown(MOUSE_LEFT))
+	{
+		dragged = false;
+
+		int best = -1;
+		float best_depth = FLT_MAX;
+		for (uint i = 0; i < m_Sim->m_NumTotal; ++i)
+		{
+			Vector3 cs = projView * m_Sim->m_PhyxelsPos[i];
+			Vector2 wins = (Vector2(cs.x, cs.y) * 0.5f + 0.5f) * windowTrans;
+			if ((mousePos - wins).LengthSquared() < epsilon)
+			{
+				if (cs.z < best_depth)
+				{
+					best = i;
+					best_depth = cs.z;
+				}
+			}
+		}
+
+		if (best >= 0)
+		{
+			if (Window::GetMouse()->ButtonDown(MOUSE_LEFT) && !Window::GetMouse()->ButtonHeld(MOUSE_LEFT))
+			{
+				dragged = true;
+				drag_depth = best_depth;
+				drag_idx = best;
+			}
+			NCLDebug::DrawPoint(m_Sim->m_PhyxelsPos[best], 0.03f, Vector4(1.f, 1.f, 1.f, 1.f));			
+		}
+
+		m_Camera->UpdateCamera(dt * 1000.f);
+	}
+	else
+	{
+		
+		Vector2 ms_cs = mousePos / windowTrans * 2.f - 1.f;
+		Vector3 cs = Vector3(ms_cs.x, ms_cs.y, drag_depth);
+
+		m_Sim->m_PhyxelsPos[drag_idx] = Matrix4::Inverse(projView) * cs;
+
+		NCLDebug::DrawPoint(m_Sim->m_PhyxelsPos[drag_idx], 0.03f, Vector4(1.f, 0.8f, 0.5f, 1.f));
+	}
+
+	
+	UpdateNode(dt, m_RootGameObject);
 }
 
 void MyScene::SaveCameraData()
