@@ -84,8 +84,8 @@ void MyScene::OnResize()
 
 void MyScene::InitialiseCloth()
 {
-	const Matrix4 transform = Matrix4();// Matrix4::Scale(Vector3(0.75f, 0.75f, 1.0f));
-	const uint visual_subdivisions = 2;
+	const Matrix4 transform = Matrix4::Rotation(20.f, Vector3(1.f, 0.f, 0.f));// Matrix4::Scale(Vector3(0.75f, 0.75f, 1.0f));
+	const uint visual_subdivisions = 1;
 	const uint subdivisions = visual_subdivisions * 2 + 1;
 
 	uint num_verts = subdivisions * subdivisions;

@@ -1032,9 +1032,61 @@ void FEM6Noded::Render_DrawingToVisualiser()
 			p += ab * (4.f * gp.x * gp.y);
 			p += bc * (4.f * gp.y * gp.z);
 			p += ac * (4.f * gp.x * gp.z);
-			
+
 			return p;
 		};
+
+
+		//out_dn(0, 0) = 4 * gaussPoint.x() - 1.f;
+		//out_dn(0, 1) = 0.0f;
+		//out_dn(0, 2) = -4 * gaussPoint.z() + 1.f;
+		//out_dn(0, 3) = 4 * gaussPoint.y();
+		//out_dn(0, 4) = -4 * gaussPoint.y();
+		//out_dn(0, 5) = 4 * (gaussPoint.z() - gaussPoint.x());
+
+		//out_dn(1, 0) = 0.f;
+		//out_dn(1, 1) = 4 * gaussPoint.y() - 1.f;
+		//out_dn(1, 2) = -4 * gaussPoint.z() + 1.f;
+		//out_dn(1, 3) = 4 * gaussPoint.x();
+		//out_dn(1, 4) = 4 * (gaussPoint.z() - gaussPoint.y());
+		//out_dn(1, 5) = -4 * gaussPoint.x();
+
+
+		//Vec3 V_xi(0, 0, 0), V_eta(0, 0, 0);
+		//Vector3 tmp;
+		//for (int i = 0; i < 6; ++i)
+		//{
+		//	tmp = pos[tri.phyxels[i]] * out_dn(0, i);
+		//	V_xi += Vec3(tmp.x, tmp.y, tmp.z);
+
+		//	tmp = pos[tri.phyxels[i]] * out_dn(1, i);
+		//	V_eta += Vec3(tmp.x, tmp.y, tmp.z);
+		//}
+
+		Eigen::Matrix<double, 6, 5> k;
+		Eigen::Matrix<double, 6, 1> kb;
+		for (int i = 0; i < 6; i++)
+		{
+			k(i, 0) = m_PhyxelsPos[t.phyxels[i]].x * m_PhyxelsPos[t.phyxels[i]].x;
+			k(i, 1) = m_PhyxelsPos[t.phyxels[i]].y * m_PhyxelsPos[t.phyxels[i]].y;
+			k(i, 2) = m_PhyxelsPos[t.phyxels[i]].x;
+			k(i, 3) = m_PhyxelsPos[t.phyxels[i]].y;
+			k(i, 4) = 1.f;
+
+			kb(i, 0) = m_PhyxelsPos[t.phyxels[i]].z;
+		}
+		//cout << k;
+		//cout << "------------------\n";
+		//cout << kb;
+		//auto x = k.colPivHouseholderQr().solve(kb);
+
+
+		Eigen::ColPivHouseholderQR<Eigen::Matrix<double, 6, 5>> dec(k);
+		dec.setThreshold(1E-6f);
+		auto x = dec.solve(kb);
+		//cout << x;
+		//system("pause");
+
 
 		for (int ix = 0; ix <= nsteps; ++ix)
 		{
@@ -1043,9 +1095,16 @@ void FEM6Noded::Render_DrawingToVisualiser()
 			{
 				Vector3 p = get_point(ix, iy);
 
-				
-
-				if (iy > 0)
+				//NCLDebug::DrawPoint(p, 0.02f, Vector4(dir.x, dir.y, dir.z, 1.f));
+				//NCLDebug::DrawHairLine(p, p + dir * 0.01f , Vector4(dir.x, dir.y, dir.z, 1.f));
+				NCLDebug::DrawPoint(p, 0.02f, Vector4(0, 1, 0,0.5f));
+				p.z = p.x * p.x * x(0, 0)
+					+ p.y * p.y * x(1, 0)
+					+ p.x * x(2, 0)
+					+ p.y * x(3, 0)
+					+ x(4, 0);
+				NCLDebug::DrawPoint(p, 0.02f, Vector4(1, 0, 1, 0.5f));
+				/*if (iy > 0)
 				{
 					NCLDebug::DrawHairLine(p, oldp, Vector4(0.f, 0.f, 1.f, 1.f));		
 				}
@@ -1057,10 +1116,16 @@ void FEM6Noded::Render_DrawingToVisualiser()
 					NCLDebug::DrawHairLine(p, p3, Vector4(0.f, 0.f, 1.f, 1.f));
 					if (iy > 0)
 						NCLDebug::DrawHairLine(oldp, p3, Vector4(0.f, 0.f, 1.f, 1.f));
-				}
+				}*/
 
 				oldp = p;
 			}
 		}
+
+
+
+		
+
+
 	}
 }
