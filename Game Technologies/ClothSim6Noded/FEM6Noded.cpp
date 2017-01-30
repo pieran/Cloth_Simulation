@@ -1063,33 +1063,32 @@ void FEM6Noded::Render_DrawingToVisualiser()
 		//	V_eta += Vec3(tmp.x, tmp.y, tmp.z);
 		//}
 
-		Eigen::Matrix<double, 6, 5> k;
-		Eigen::Matrix<double, 6, 1> kb;
-		for (int i = 0; i < 6; i++)
+		Vector3 inv_light_dir = Vector3(0.5f, 1.0f, -0.8f);
+		inv_light_dir.Normalise();
+
+		const Vector4 color = Vector4(0.f, 0.f, 1.f, 1.f);
+		auto draw_line = [&](const Vector3& v1, const Vector3& v2)
 		{
-			k(i, 0) = m_PhyxelsPos[t.phyxels[i]].x * m_PhyxelsPos[t.phyxels[i]].x;
-			k(i, 1) = m_PhyxelsPos[t.phyxels[i]].y * m_PhyxelsPos[t.phyxels[i]].y;
-			k(i, 2) = m_PhyxelsPos[t.phyxels[i]].x;
-			k(i, 3) = m_PhyxelsPos[t.phyxels[i]].y;
-			k(i, 4) = 1.f;
+#if 1
+			NCLDebug::DrawHairLine(v1, v2, color);
+#else
+			Vector3 norm = v2 - v1;
+			norm.Normalise();
 
-			kb(i, 0) = m_PhyxelsPos[t.phyxels[i]].z;
-		}
-		//cout << k;
-		//cout << "------------------\n";
-		//cout << kb;
-		//auto x = k.colPivHouseholderQr().solve(kb);
+			float d = norm.Dot(inv_light_dir);
+			d = min(max(0, d), 1);
+			//d *= 0.5f;
+			//NCLDebug::DrawHairLine(v1, v2, Vector4(color.x * d, color.y * d, color.z * d, color.w));
 
+			NCLDebug::DrawHairLine(v1, v2, Vector4(color.x + d, color.y + d, color.z + d, color.w));
+#endif
+		};
 
-		Eigen::ColPivHouseholderQR<Eigen::Matrix<double, 6, 5>> dec(k);
-		dec.setThreshold(1E-6f);
-		auto x = dec.solve(kb);
-		//cout << x;
-		//system("pause");
-
-
+	
+		Vector3 xOldP;
 		for (int ix = 0; ix <= nsteps; ++ix)
 		{
+
 			Vector3 oldp;
 			for (int iy = 0; iy <= (nsteps - ix); ++iy)
 			{
@@ -1097,34 +1096,34 @@ void FEM6Noded::Render_DrawingToVisualiser()
 
 				//NCLDebug::DrawPoint(p, 0.02f, Vector4(dir.x, dir.y, dir.z, 1.f));
 				//NCLDebug::DrawHairLine(p, p + dir * 0.01f , Vector4(dir.x, dir.y, dir.z, 1.f));
-				NCLDebug::DrawPoint(p, 0.02f, Vector4(0, 1, 0,0.5f));
-				p.z = p.x * p.x * x(0, 0)
-					+ p.y * p.y * x(1, 0)
-					+ p.x * x(2, 0)
-					+ p.y * x(3, 0)
-					+ x(4, 0);
-				NCLDebug::DrawPoint(p, 0.02f, Vector4(1, 0, 1, 0.5f));
-				/*if (iy > 0)
+				if (iy == nsteps - ix)
 				{
-					NCLDebug::DrawHairLine(p, oldp, Vector4(0.f, 0.f, 1.f, 1.f));		
+					if (ix > 0)
+						draw_line(xOldP, p);
+
+					xOldP = p;
 				}
 
 				if (ix > 0)
 				{
 					Vector3 p3 = get_point(ix - 1, iy);
 
-					NCLDebug::DrawHairLine(p, p3, Vector4(0.f, 0.f, 1.f, 1.f));
-					if (iy > 0)
-						NCLDebug::DrawHairLine(oldp, p3, Vector4(0.f, 0.f, 1.f, 1.f));
-				}*/
+					draw_line(p, p3);
+					if (iy > 0)draw_line(oldp, p3);
+					
+				}
+				
+				if (iy > 0)
+				{
+					draw_line(p, oldp);
+				}
 
 				oldp = p;
 			}
+
+			
 		}
 
-
-
-		
 
 
 	}
