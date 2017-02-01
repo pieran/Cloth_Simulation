@@ -987,90 +987,334 @@ void FEM6Noded::Render_DrawingToVisualiser()
 
 
 
+		
 
 
 
 
-		Vector3 sp = Vector3(1.f, 1.f, 1.f) / 3.f;
-		Vector3 centre = (a + b + c + ab + ac + bc) / 6.f;
-
-		Vector3 vxi, veta;
-
-		vxi = a * 4.f * sp.x - 1.f;
-		vxi += b * 0.0f;
-		vxi += c * (-4.f * sp.z + 1.f);
-		vxi += ab * 4.f * sp.y;
-		vxi += bc * (-4.f * sp.y);
-		vxi += ac * 4.f * (sp.z - sp.x);
-
-		veta = a * 0.0f;
-		veta += b * 4.f * sp.y - 1.f;
-		veta += c * (-4.f * sp.z + 1.f);
-		veta += ab * 4.f * sp.x;
-		veta += bc * 4.f * (sp.z - sp.y);
-		veta += ac * (-4.f * sp.x);
-
-		veta.Normalise();
-		vxi.Normalise();
-
-		int nsteps = 16;
+		int nsteps = 32;
 		float step = 1.f / float(nsteps);
+		Vector3 inv_light_dir = Vector3(0.5f, 1.0f, -0.8f);
+		inv_light_dir.Normalise();
+		const Vector4 color = Vector4(0.f, 0.f, 1.f, 1.f);
 
-		auto get_point = [&](int ix, int iy)
+
+		Vector3 p1 = a;
+		Vector3 p2 = ab;
+		Vector3 p3 = b;
+		Vector3 t1 = (ab - a) * 2.f;
+		Vector3 t2 = (b - a);
+		Vector3 t3 = (b - ab) * 2.f;
+		for (int ix = 0; ix <= nsteps; ++ix)
+		{
+			float x = ix * step;
+
+			float x2 = x * x;
+			float x3 = x * x * x;
+			float x4 = x2 * x2;
+			float x5 = x3 * x2;
+
+			//float h1 = 16.f * x3 - 12 * x2 + 1;
+			//float h2 = -16 * x3 + 12 * x2;
+			//float h3 = 8 * x3 - 8 * x2 + 2.f * x;
+			//float h4 = 8.f * x3 - 4.f * x2;
+
+			//float h1 = 2.f * x3 - 3 * x2 + 1;
+			//float h2 = -2 * x3 + 3 * x2;
+			//float h3 = x3 - 2 * x2 + x;
+			//float h4 = x3 - x2;
+
+			//Vector3 p = p1 * h1
+			//	+ p2 * h2
+			//	+ t1 * h3
+			//	+ t2 * h4;
+
+
+
+			float N1 = 1 - 23 * x2 + 66 * x3 - 68 * x4 + 24 * x5;
+			float N2 = 16 * x2 - 32 * x3 + 16 * x4;
+			float N3 = 7 * x2 - 34 * x3 + 52 * x4 - 24 * x5;
+
+			float NT1 = x - 6 * x2 + 13 * x3 - 12 * x4 + 4 * x5;
+			float NT2 = -8 * x2 + 32 * x3 - 40 * x4 + 16 * x5;
+			float NT3 = -x2 + 5 * x3 - 8 * x4 + 4 * x5;
+
+			Vector3 p = p1 * N1
+				+ p2 * N2
+				+ p3 * N3
+					+ t1 * NT1
+				    + t2 * NT2
+				    + t3 * NT3;
+
+
+		//	NCLDebug::DrawPoint(p, 0.004f, color);
+		}
+
+
+
+		if (i > 0)
+			continue;
+
+		Vector3 ta1 = (c - a) * 1;
+		Vector3 tb1 = (a - b) * 1;
+		Vector3 tc1 = (b - c) * 1;
+
+		Vector3 ta2 = (ab - a) * 1;
+		Vector3 tb2 = (bc - b) * 1;
+		Vector3 tc2 = (ac - c) * 1;
+
+
+		Vector3 tab = ((b - c) + (a - c));
+		Vector3 tbc = ((c - a) + (b - a));
+		Vector3 tac = ((c - b) + (a - b));
+
+		//if (i == 0)
+		//{
+		//	tab = (m_PhyxelsPos[8] - m_PhyxelsPos[0] ) * 0.5;//
+		//}
+		//else
+		//{
+		//	tac = (m_PhyxelsPos[0] - m_PhyxelsPos[8]) * 0.5f;//
+		//}
+	//	tab *= 2;
+	//	tbc *= 2;
+	//	tac *= 2;
+
+		/*tab.Normalise();
+		tbc.Normalise();
+		tac.Normalise();*/
+
+		/*Vector3 tab = (ab - c) * -1.0f;
+		Vector3 tbc = (bc - a) * -1.0; 
+		Vector3 tac = (ac - b) * -1.0;*/
+
+		if (Window::GetKeyboard()->KeyDown(KEYBOARD_U))
+		{
+			NCLDebug::DrawThickLine(a, a + ta1, 0.02f, Vector4(1.f, 0.f, 0.f, 1.f));
+			NCLDebug::DrawThickLine(b, b + tb1, 0.02f, Vector4(0.f, 1.f, 0.f, 1.f));
+			NCLDebug::DrawThickLine(c, c + tc1, 0.02f, Vector4(0.f, 0.f, 1.f, 1.f));
+
+
+			NCLDebug::DrawThickLine(ab, ab + tab, 0.02f, Vector4(1.f, 0.5f, 0.f, 1.f));
+			NCLDebug::DrawThickLine(bc, bc + tbc, 0.02f, Vector4(0.5f, 1.f, 0.f, 1.f));
+			NCLDebug::DrawThickLine(ac, ac + tac, 0.02f, Vector4(0.5f, 0.f, 1.f, 1.f));
+
+
+			NCLDebug::DrawThickLine(a, a + ta2, 0.02f, Vector4(1.f, 0.5f, 1.f, 1.f));
+			NCLDebug::DrawThickLine(b, b + tb2, 0.02f, Vector4(0.5f, 1.f, 1.f, 1.f));
+			NCLDebug::DrawThickLine(c, c + tc2, 0.02f, Vector4(0.5f, 1.f, 1.f, 1.f));
+		}
+
+		auto get_point = [&](int ix, int iy, Vector3& gp)
 		{
 			float x = ix * step;
 			float y = iy * step;
 
-			Vector3 gp = Vector3(x, y, 0.f);
+			gp = Vector3(x, y, 0.f);
 			gp.z = 1.f - (x + y);
 
+			Vector3 gp2 = gp * gp;
+			Vector3 gp3 = gp * gp * gp;
+			Vector3 gp4 = gp2 * gp2;
+			Vector3 gp5 = gp3 * gp2;
 
-			Vector3 p;
+			//DEFAULT QUADRATIC!!!
+			/*Vector3 p;
 			p = a * (gp.x * (2.f * gp.x - 1.f));
 			p += b * (gp.y * (2.f * gp.y - 1.f));
 			p += c * (gp.z * (2.f * gp.z - 1.f));
 			p += ab * (4.f * gp.x * gp.y);
 			p += bc * (4.f * gp.y * gp.z);
-			p += ac * (4.f * gp.x * gp.z);
+			p += ac * (4.f * gp.x * gp.z);*/
+
+
+
+			//HERMITE SPLINE!!!
+			//float N1 = 7.f * gp2.x - 34 * gp3.x + 52 * gp4.x - 24 * gp5.x;
+			//float N2 = 7.f * gp2.y - 34 * gp3.y + 52 * gp4.y - 24 * gp5.y;
+			//float N3 = 7.f * gp2.z - 34 * gp3.z + 52 * gp4.z - 24 * gp5.z;
+
+			//float N4 = 15.5 * (gp2.x + gp2.y) - 0.5 * gp2.z - 41 * (gp3.x + gp3.y) - 9 * gp3.z + 38 * (gp4.x + gp4.y) + 22 * gp4.z - 12 * (gp5.x + gp5.y + gp5.z) - 0.5;
+			//float N5 = 15.5 * (gp2.z + gp2.y) - 0.5 * gp2.x - 41 * (gp3.z + gp3.y) - 9 * gp3.x + 38 * (gp4.z + gp4.y) + 22 * gp4.x - 12 * (gp5.x + gp5.y + gp5.z) - 0.5;
+			//float N6 = 15.5 * (gp2.x + gp2.z) - 0.5 * gp2.y - 41 * (gp3.x + gp3.z) - 9 * gp3.y + 38 * (gp4.x + gp4.z) + 22 * gp4.y - 12 * (gp5.x + gp5.y + gp5.z) - 0.5;
+
+			//float T1 = 6.5 * gp2.x + 7.5 * (gp2.y + gp2.z) - 20 * gp3.x - 25 * (gp3.y + gp3.z) + 22 * gp4.x + 30 * (gp4.y + gp4.z) - 8 * gp5.x - 12 * (gp5.y + gp5.z) - 0.5;
+			//float T2 = 6.5 * gp2.y + 7.5 * (gp2.x + gp2.z) - 20 * gp3.y - 25 * (gp3.x + gp3.z) + 22 * gp4.y + 30 * (gp4.x + gp4.z) - 8 * gp5.y - 12 * (gp5.x + gp5.z) - 0.5;
+			//float T3 = 6.5 * gp2.z + 7.5 * (gp2.y + gp2.x) - 20 * gp3.z - 25 * (gp3.y + gp3.x) + 22 * gp4.z + 30 * (gp4.y + gp4.x) - 8 * gp5.z - 12 * (gp5.y + gp5.x) - 0.5;
+
+			//float T4 = gp.x + 1.5 * gp2.x + 7.5 * (gp2.y + gp2.z) - 12 * gp3.x - 25 * (gp3.y + gp3.z) + 18 * gp4.x + 30 * (gp4.y + gp4.z) - 8 * gp5.x - 12 * (gp5.y + gp5.z) - 0.5;
+			//float T5 = gp.y + 1.5 * gp2.y + 7.5 * (gp2.x + gp2.z) - 12 * gp3.y - 25 * (gp3.x + gp3.z) + 18 * gp4.y + 30 * (gp4.x + gp4.z) - 8 * gp5.y - 12 * (gp5.x + gp5.z) - 0.5;
+			//float T6 = gp.z + 1.5 * gp2.z + 7.5 * (gp2.y + gp2.x) - 12 * gp3.z - 25 * (gp3.y + gp3.x) + 18 * gp4.z + 30 * (gp4.y + gp4.x) - 8 * gp5.z - 12 * (gp5.y + gp5.x) - 0.5;
+
+			//float T7 = 3.5 * (gp2.x + gp2.y) + 11.5 * gp2.z - 9 * (gp3.x + gp3.y) - 41 * gp3.z + 10 * (gp4.x + gp4.y) + 50 * gp4.z - 4 * (gp5.x + gp5.y) - 20 * gp5.z - 0.5;
+		//	float T8 = 3.5 * (gp2.z + gp2.y) + 11.5 * gp2.x - 9 * (gp3.z + gp3.y) - 41 * gp3.x + 10 * (gp4.z + gp4.y) + 50 * gp4.x - 4 * (gp5.z + gp5.y) - 20 * gp5.x - 0.5;
+			//float T9 = 3.5 * (gp2.x + gp2.z) + 11.5 * gp2.y - 9 * (gp3.x + gp3.z) - 41 * gp3.y + 10 * (gp4.x + gp4.z) + 50 * gp4.y - 4 * (gp5.x + gp5.z) - 20 * gp5.y - 0.5;
+
+
+			float n983 = 98.0 / 3.0;
+			float n23 = 2.0 / 3.0;
+			float n13 = 1.0 / 3.0;
+
+			//float N4 = 13 * (gp2.x + gp2.y) - 3 * gp2.z - n983 * (gp3.x + gp3.y) - n23 * gp3.z + 28 * (gp4.x + gp4.y) + 12 * gp4.z - 8 * (gp5.x + gp5.y + gp5.z) - n13;
+			//float N5 = 13 * (gp2.z + gp2.y) - 3 * gp2.x - n983 * (gp3.z + gp3.y) - n23 * gp3.x + 28 * (gp4.z + gp4.y) + 12 * gp4.x - 8 * (gp5.x + gp5.y + gp5.z) - n13;
+			//float N6 = 13 * (gp2.x + gp2.z) - 3 * gp2.y - n983 * (gp3.x + gp3.z) - n23 * gp3.y + 28 * (gp4.x + gp4.z) + 12 * gp4.y - 8 * (gp5.x + gp5.y + gp5.z) - n13;
+
+		//	float T1 = 6.5 * gp2.x + 7.5 * (gp2.y + gp2.z) - 20 * gp3.x - 25 * (gp3.y + gp3.z) + 22 * gp4.x + 30 * (gp4.y + gp4.z) - 8 * gp5.x - 12 * (gp5.y + gp5.z) - 0.5;
+		//	float T2 = 6.5 * gp2.y + 7.5 * (gp2.x + gp2.z) - 20 * gp3.y - 25 * (gp3.x + gp3.z) + 22 * gp4.y + 30 * (gp4.x + gp4.z) - 8 * gp5.y - 12 * (gp5.x + gp5.z) - 0.5;
+		//	float T3 = 6.5 * gp2.z + 7.5 * (gp2.y + gp2.x) - 20 * gp3.z - 25 * (gp3.y + gp3.x) + 22 * gp4.z + 30 * (gp4.y + gp4.x) - 8 * gp5.z - 12 * (gp5.y + gp5.x) - 0.5;
+
+		////	float T4 = -(gp.y + gp.z) - 0.5 * gp2.x + 13.5 * (gp2.y + gp2.z) + 7 * gp3.x - 38 * (gp3.y + gp3.z) - 10 * gp4.x + 42 * (gp4.y * gp4.z) + 4 * gp5.x - 16 * (gp5.y + gp5.z) - 0.5;
+		////	float T5 = -(gp.x + gp.z) - 0.5 * gp2.y + 13.5 * (gp2.x + gp2.z) + 7 * gp3.y - 38 * (gp3.x + gp3.z) - 10 * gp4.y + 42 * (gp4.x * gp4.z) + 4 * gp5.y - 16 * (gp5.x + gp5.z) - 0.5;
+		////	float T6 = -(gp.y + gp.x) - 0.5 * gp2.z + 13.5 * (gp2.y + gp2.x) + 7 * gp3.z - 38 * (gp3.y + gp3.x) - 10 * gp4.z + 42 * (gp4.y * gp4.x) + 4 * gp5.z - 16 * (gp5.y + gp5.x) - 0.5;
+		//	
+		//	//float T7 = gp.z + 7.5 * (gp2.x + gp2.y) + 1.5 * gp2.z - 25 * (gp3.x + gp3.y) - 12 * gp3.z + 30 * (gp4.x + gp4.y) + 18 * gp4.z - 12 * (gp5.x + gp5.y) - 8 * gp5.z - 0.5;
+		//	//float T8 = gp.x + 7.5 * (gp2.z + gp2.y) + 1.5 * gp2.x - 25 * (gp3.z + gp3.y) - 12 * gp3.x + 30 * (gp4.z + gp4.y) + 18 * gp4.x - 12 * (gp5.z + gp5.y) - 8 * gp5.x - 0.5;
+		//	//float T9 = gp.y + 7.5 * (gp2.x + gp2.z) + 1.5 * gp2.y - 25 * (gp3.x + gp3.z) - 12 * gp3.y + 30 * (gp4.x + gp4.z) + 18 * gp4.y - 12 * (gp5.x + gp5.z) - 8 * gp5.y - 0.5;
+
+		//	
+		//	
+		//	float T4 = gp.x - 2.5 * gp2.x + 11.5 * (gp2.y + gp2.z) + 4 * gp3.x - 41 * (gp3.y + gp3.z) - 2 * gp4.x + 50 * (gp4.y + gp4.z) - 20 * (gp5.y + gp5.z) - 0.5;
+		//	float T5 = gp.y - 2.5 * gp2.y + 11.5 * (gp2.x + gp2.z) + 4 * gp3.y - 41 * (gp3.x + gp3.z) - 2 * gp4.y + 50 * (gp4.x + gp4.z) - 20 * (gp5.x + gp5.z) - 0.5;
+		//	float T6 = gp.z - 2.5 * gp2.z + 11.5 * (gp2.y + gp2.x) + 4 * gp3.z - 41 * (gp3.y + gp3.x) - 2 * gp4.z + 50 * (gp4.y + gp4.x) - 20 * (gp5.y + gp5.x) - 0.5;
+
+
+
+			float N1 = 0.5 - 0.5 * gp2.x - 7.5 * (gp2.y + gp2.z) - 9 * gp3.x + 25 * (gp3.y + gp3.z) + 22 * gp4.x - 30 * (gp4.y + gp4.z) - 12 * gp5.x + 12 * (gp5.y + gp5.z);
+			float N2 = 0.5 - 0.5 * gp2.y - 7.5 * (gp2.x + gp2.z) - 9 * gp3.y + 25 * (gp3.x + gp3.z) + 22 * gp4.y - 30 * (gp4.x + gp4.z) - 12 * gp5.y + 12 * (gp5.x + gp5.z);
+			float N3 = 0.5 - 0.5 * gp2.z - 7.5 * (gp2.y + gp2.x) - 9 * gp3.z + 25 * (gp3.y + gp3.x) + 22 * gp4.z - 30 * (gp4.y + gp4.x) - 12 * gp5.z + 12 * (gp5.y + gp5.x);
+			float N4 = 8 * (gp2.x + gp2.y - gp2.z + gp4.x + gp4.y - gp4.z + 2 * (-gp3.x - gp3.y + gp3.z));
+			float N5 = 8 * (-gp2.x + gp2.y + gp2.z - gp4.x + gp4.y + gp4.z + 2 * (gp3.x - gp3.y - gp3.z));
+			float N6 = 8 * (gp2.x - gp2.y + gp2.z + gp4.x - gp4.y + gp4.z + 2 * (-gp3.x + gp3.y - gp3.z));
+
+
+			float T7 = 4 * (-gp2.x - gp2.y + gp2.z) + 16 * (gp3.x + gp3.y - gp3.z) + 20 * (-gp4.x - gp4.y + gp4.z) + 8 * (gp5.x + gp5.y - gp5.z);
+			float T8 = 4 * (gp2.x - gp2.y - gp2.z) + 16 * (-gp3.x + gp3.y + gp3.z) + 20 * (gp4.x - gp4.y - gp4.z) + 8 * (-gp5.x + gp5.y + gp5.z);
+			float T9 = 4 * (-gp2.x + gp2.y - gp2.z) + 16 * (gp3.x - gp3.y + gp3.z) + 20 * (-gp4.x + gp4.y - gp4.z) + 8 * (gp5.x - gp5.y + gp5.z);
+
+			float T1 = -gp2.x + 5 * gp3.x - 8 * gp4.x + 4 * gp5.x;
+			float T2 = -gp2.y + 5 * gp3.y - 8 * gp4.y + 4 * gp5.y;
+			float T3 = -gp2.z + 5 * gp3.z - 8 * gp4.z + 4 * gp5.z;
+
+			float T4 = gp.y + 4 * (gp2.x + gp2.z) - 10 * gp2.y - 16 * (gp3.x + gp3.z) + 29 * gp3.y + 20 * (gp4.x + gp4.z) - 32 * gp4.y - 8 * (gp5.x + gp5.z) + 12 * gp5.y;
+			float T5 = gp.z + 4 * (gp2.x + gp2.y) - 10 * gp2.z - 16 * (gp3.x + gp3.y) + 29 * gp3.z + 20 * (gp4.x + gp4.y) - 32 * gp4.z - 8 * (gp5.x + gp5.y) + 12 * gp5.z;
+			float T6 = gp.x + 4 * (gp2.y + gp2.z) - 10 * gp2.x - 16 * (gp3.y + gp3.z) + 29 * gp3.x + 20 * (gp4.y + gp4.z) - 32 * gp4.x - 8 * (gp5.y + gp5.z) + 12 * gp5.x;
+
+			Vector3 p = a * N1
+				+ b * N2
+				+ c * N3
+				+ ab * N4
+				+ bc * N5
+				+ ac * N6
+				+ tab * T7 * n23
+				+ tbc * T8 * n23
+				+ tac * T9 * n23;
+				//+ ta1 * -T1;
+				//+ tb1 * T2
+				//+ tc1 * T3
+				//+ (ab - a) * 2 * T5
+				//+ (bc - b) * 2 * T4
+				//+ (ac - c) * 2 * T6
+				//+ ta1 * -T4
+				//+ tb2 * T5
+				//+ tc2 * T6
+				//+ta1 * T4;
+				//+ tb2 * T6
+				//+ ta2 * T4;
+
+				//+ tab * T7
+				//+ tbc * T8
+				//+ tac * T9;
+
+			if (Window::GetKeyboard()->KeyDown(KEYBOARD_B))
+			{
+				float TX = -gp2.x + 5 * gp3.x - 8 * gp4.x + 4 * gp5.x;
+				float TY = -gp2.y + 5 * gp3.y - 8 * gp4.y + 4 * gp5.y;
+				float TZ = -gp2.z + 5 * gp3.z - 8 * gp4.z + 4 * gp5.z;
+
+				float T1 = 4 * gp2.y - 16 * gp3.y + 20 * gp4.y - 8 * gp5.y;
+				float T2 = 4 * gp2.x - 16 * gp3.x + 20 * gp4.x - 8 * gp5.x;
+				float T3 = 4 * gp2.z - 16 * gp3.z + 20 * gp4.z - 8 * gp5.z;
+				
+				float T4 = gp.x - 10 * gp2.x + 29 * gp3.x - 32 * gp4.x + 12 * gp5.x;
+				float T5 = gp.y - 10 * gp2.y + 29 * gp3.y - 32 * gp4.y + 12 * gp5.y;
+				float T6 = gp.z - 10 * gp2.z + 29 * gp3.z - 32 * gp4.z + 12 * gp5.z;
+
+
+
+
+				float T7 = 4 * (-gp2.x + gp2.z) + 16 * (gp3.x - gp3.z) + 20 * (-gp4.x + gp4.z) + 8 * (gp5.x - gp5.z);
+				float T8 = 4 * (gp2.x - gp2.y) + 16 * (-gp3.x + gp3.y) + 20 * (gp4.x - gp4.y) + 8 * (-gp5.x + gp5.y);
+				float T9 = 4 * (-gp2.x - gp2.z) + 16 * (gp3.x + gp3.z) + 20 * (-gp4.x - gp4.z) + 8 * (gp5.x + gp5.z);
+
+				float T7X = 4 * (- gp2.y + gp2.z) + 16 * (gp3.y - gp3.z) + 20 * (- gp4.y + gp4.z) + 8 * (gp5.y - gp5.z);
+				float T8Y = 4 * (- gp2.y - gp2.z) + 16 * (gp3.y + gp3.z) + 20 * (- gp4.y - gp4.z) + 8 * (gp5.y + gp5.z);
+				float T9Z = 4 * (gp2.y - gp2.z) + 16 * (- gp3.y + gp3.z) + 20 * (gp4.y - gp4.z) + 8 * (- gp5.y + gp5.z);
+
+				if (Window::GetKeyboard()->KeyDown(KEYBOARD_N))
+					T5 = 0.0f;
+				if (Window::GetKeyboard()->KeyDown(KEYBOARD_M))
+					T4 = 0.0f;
+
+				float f = -1.5;
+
+				p = a * N1
+					+ b * N2
+					+ c * N3
+					+ ab * N4
+					+ bc * N5
+					+ ac * N6
+					+ (bc - ab) * T7X * n23 * 0.5f
+					+ (ac - ab) * T7 * n23 * 0.5f
+					//+ tab * T7 * n23
+					+ ((b - a)) * T8 * n23 * 0.5f
+					+ ((c - a)) * T8Y * n23 * 0.5f
+
+					+ ((b - a))  * T9 * n23 * 0.5f
+					+ ((b - c))  * T9Z * n23 * 0.5f
+
+					+ (b - a) * T1 * T4 * f
+					+ (c - a) * T3 * T4 * f
+
+					+ (a - b) * T2 * T5 * f
+					+ (c - b) * T3 * T5 * f
+
+					+ (b - c) * T1 * T6 * f
+					+ (a - c) * T2 * T6 * f;
+
+					//+ (bc - a) * -2.0f * TX
+					//+ (ac - b) * -2.0f * TY
+					//+ (ab - c) * -2.0f * TZ;
+
+
+					//+ (b-a) * 0.5 * T7;
+					//+ ((a-c)+(a-b)) * 0.5 * T1;
+
+				NCLDebug::DrawThickLine(ab, ab + (bc - ab) * 0.35, 0.02f, Vector4(0.5f, 1.f, 1.f, 1.f));
+				NCLDebug::DrawThickLine(bc, bc + (b - a) * 0.35, 0.02f, Vector4(0.5f, 1.f, 1.f, 1.f));
+				NCLDebug::DrawThickLine(ac, ac + (b - a) * 0.35, 0.02f, Vector4(0.5f, 1.f, 1.f, 1.f));
+				NCLDebug::DrawThickLine(ab, ab + (ac - ab) * 0.35, 0.02f, Vector4(0.5f, 1.f, 1.f, 1.f));
+				NCLDebug::DrawThickLine(bc, bc + (c - a) * 0.35, 0.02f, Vector4(0.5f, 1.f, 1.f, 1.f));
+				NCLDebug::DrawThickLine(ac, ac + (b - c) * 0.35, 0.02f, Vector4(0.5f, 1.f, 1.f, 1.f));
+			}
+
+			//T7 = 4 * (-gp2.x + gp2.z) + 16 * (gp3.x - gp3.z) + 20 * (-gp4.x + gp4.z) + 8 * (gp5.x - gp5.z);
+			float T7X = 4 * (-gp2.y + gp2.z) + 16 * (gp3.y - gp3.z) + 20 * (-gp4.y + gp4.z) + 8 * (gp5.y - gp5.z);
+
+			if (Window::GetKeyboard()->KeyDown(KEYBOARD_V))
+				gp.y =  T7 * 5.f + 0.5f;
+			else
+				gp.y = T1 * 5.f + 0.5f;
+
+			gp.x = gp.z = (gp.y-0.5) * 5.f + 0.5f;
 
 			return p;
 		};
 
-
-		//out_dn(0, 0) = 4 * gaussPoint.x() - 1.f;
-		//out_dn(0, 1) = 0.0f;
-		//out_dn(0, 2) = -4 * gaussPoint.z() + 1.f;
-		//out_dn(0, 3) = 4 * gaussPoint.y();
-		//out_dn(0, 4) = -4 * gaussPoint.y();
-		//out_dn(0, 5) = 4 * (gaussPoint.z() - gaussPoint.x());
-
-		//out_dn(1, 0) = 0.f;
-		//out_dn(1, 1) = 4 * gaussPoint.y() - 1.f;
-		//out_dn(1, 2) = -4 * gaussPoint.z() + 1.f;
-		//out_dn(1, 3) = 4 * gaussPoint.x();
-		//out_dn(1, 4) = 4 * (gaussPoint.z() - gaussPoint.y());
-		//out_dn(1, 5) = -4 * gaussPoint.x();
-
-
-		//Vec3 V_xi(0, 0, 0), V_eta(0, 0, 0);
-		//Vector3 tmp;
-		//for (int i = 0; i < 6; ++i)
-		//{
-		//	tmp = pos[tri.phyxels[i]] * out_dn(0, i);
-		//	V_xi += Vec3(tmp.x, tmp.y, tmp.z);
-
-		//	tmp = pos[tri.phyxels[i]] * out_dn(1, i);
-		//	V_eta += Vec3(tmp.x, tmp.y, tmp.z);
-		//}
-
-		Vector3 inv_light_dir = Vector3(0.5f, 1.0f, -0.8f);
-		inv_light_dir.Normalise();
-
-		const Vector4 color = Vector4(0.f, 0.f, 1.f, 1.f);
-		auto draw_line = [&](const Vector3& v1, const Vector3& v2)
+	
+		auto draw_line = [&](const Vector3& v1, const Vector3& v2, const Vector3& gp)
 		{
 #if 1
-			NCLDebug::DrawHairLine(v1, v2, color);
+			NCLDebug::DrawHairLine(v1, v2, Vector4(gp.x, gp.y, gp.z, 1.f));
 #else
 			Vector3 norm = v2 - v1;
 			norm.Normalise();
@@ -1084,7 +1328,7 @@ void FEM6Noded::Render_DrawingToVisualiser()
 #endif
 		};
 
-	
+		Vector3 gp, p;
 		Vector3 xOldP;
 		for (int ix = 0; ix <= nsteps; ++ix)
 		{
@@ -1092,30 +1336,31 @@ void FEM6Noded::Render_DrawingToVisualiser()
 			Vector3 oldp;
 			for (int iy = 0; iy <= (nsteps - ix); ++iy)
 			{
-				Vector3 p = get_point(ix, iy);
+				
+				p = get_point(ix, iy, gp);
 
-				//NCLDebug::DrawPoint(p, 0.02f, Vector4(dir.x, dir.y, dir.z, 1.f));
+				//NCLDebug::DrawPoint(p, 0.02f, Vector4(gp.x, gp.y, gp.z, 1.f));
 				//NCLDebug::DrawHairLine(p, p + dir * 0.01f , Vector4(dir.x, dir.y, dir.z, 1.f));
 				if (iy == nsteps - ix)
 				{
 					if (ix > 0)
-						draw_line(xOldP, p);
+						draw_line(xOldP, p, gp);
 
 					xOldP = p;
 				}
 
 				if (ix > 0)
 				{
-					Vector3 p3 = get_point(ix - 1, iy);
+					Vector3 p3 = get_point(ix - 1, iy, gp);
 
-					draw_line(p, p3);
-					if (iy > 0)draw_line(oldp, p3);
+					draw_line(p, p3, gp);
+					if (iy > 0)draw_line(oldp, p3, gp);
 					
 				}
 				
 				if (iy > 0)
 				{
-					draw_line(p, oldp);
+					draw_line(p, oldp, gp);
 				}
 
 				oldp = p;
