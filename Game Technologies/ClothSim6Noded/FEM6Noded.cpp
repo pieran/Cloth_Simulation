@@ -1052,30 +1052,37 @@ void FEM6Noded::Render_DrawingToVisualiser()
 
 
 
-		if (i > 0)
-			continue;
-
-		Vector3 ta1 = (c - a) * 1;
-		Vector3 tb1 = (a - b) * 1;
-		Vector3 tc1 = (b - c) * 1;
-
-		Vector3 ta2 = (ab - a) * 1;
-		Vector3 tb2 = (bc - b) * 1;
-		Vector3 tc2 = (ac - c) * 1;
+	//	if (i > 0)
+	//		continue;
 
 
+		Vector3 ta1 = (b - a);
+		Vector3 ta2 = (c - a);
+
+		Vector3 tb1 = (a - b);
+		Vector3 tb2 = (c - b);
+
+		Vector3 tc1 = (c - a);
+		Vector3 tc2 = (c - b);
+		
+		
 		Vector3 tab = ((b - c) + (a - c));
-		Vector3 tbc = ((c - a) + (b - a));
-		Vector3 tac = ((c - b) + (a - b));
+		Vector3 tbc = (a - c);
+		Vector3 tac = (b - c);
 
 		//if (i == 0)
 		//{
-		//	tab = (m_PhyxelsPos[8] - m_PhyxelsPos[0] ) * 0.5;//
+		//	tab = (m_PhyxelsPos[8] - m_PhyxelsPos[0] );//
 		//}
 		//else
 		//{
-		//	tac = (m_PhyxelsPos[0] - m_PhyxelsPos[8]) * 0.5f;//
+		//	tac = (m_PhyxelsPos[0] - m_PhyxelsPos[8]);//
 		//}
+
+
+
+
+
 	//	tab *= 2;
 	//	tbc *= 2;
 	//	tac *= 2;
@@ -1113,6 +1120,7 @@ void FEM6Noded::Render_DrawingToVisualiser()
 			gp = Vector3(x, y, 0.f);
 			gp.z = 1.f - (x + y);
 
+
 			Vector3 gp2 = gp * gp;
 			Vector3 gp3 = gp * gp * gp;
 			Vector3 gp4 = gp2 * gp2;
@@ -1127,6 +1135,134 @@ void FEM6Noded::Render_DrawingToVisualiser()
 			p += bc * (4.f * gp.y * gp.z);
 			p += ac * (4.f * gp.x * gp.z);*/
 
+
+			//CORNER TOP LEFT!!!!!
+			//float N1 = -4 * gp.x + 11 * gp2.x - 6 * gp3.x;
+			//float N2 = -gp2.y + 2 * gp3.y;
+			//float N3 = 1 - 4 * gp.x + 5 * gp2.x - 7 * gp2.y - 2 * gp3.x + 6 * gp3.y + 4 * gp.x * gp.y;
+			//float N4 = 4 * gp.x * gp.y;
+			//float N5 = 8 * gp2.y - 8 * gp3.y - 4 * gp.x * gp.y;
+			//float N6 = 8 * gp.x - 16 * gp2.x + 8 * gp3.x - 4 * gp.x * gp.y;
+
+
+			//float T1 = gp.x - 3 * gp2.x + 2 * gp3.x;
+			//float T2 = gp.y - 3 * gp2.y + 2 * gp3.y;
+
+
+			//MID POINT AB
+			//float N1 = -gp2.x + 2 * gp3.x;
+			//float N2 = -gp2.y + 2 * gp3.y;
+			//float N3 = 1 - 2 * gp.x - 2 * gp.y - gp2.x - gp2.y + 2 * gp3.x + 2 * gp3.y + 4 * gp.x * gp.y;
+			//float N4 = 2 * gp.x + 2 * gp.y - 6 * gp2.x - 6 * gp2.y + 4 * gp3.x + 4 * gp3.y + 4 * gp.x * gp.y;
+			//float N5 = -2 * gp.x + 2 * gp.y + 6 * gp2.x + 2 * gp2.y - 4 * gp3.x - 4 * gp3.y - 4 * gp.x * gp.y;
+			//float N6 = 2 * gp.x - 2 * gp.y + 2 * gp2.x + 6 * gp2.y - 4 * gp3.x - 4 * gp3.y - 4 * gp.x * gp.y;
+			//float T1 = -gp.x + 3 * gp2.x - 2 * gp3.x;
+			//float T2 = -gp.y + 3 * gp2.y - 2 * gp3.y;
+
+
+			//MID POINT AB + AC
+			//float N1 = gp.x - 4 * gp2.x + 4 * gp3.x;
+			//float N2 = -gp.y + 2 * gp2.y + 2 * (gp.x * gp.y) - 4 * (gp.x * gp2.y);
+			//float N3 = 1 - 5 * gp.x - 7 * gp.y + 8 * gp2.x + 14 * gp2.y - 4 * gp3.x - 8 * gp3.y + 14 * gp.x * gp.y - 8 * gp2.x * gp.y - 12 * gp.x * gp2.y;
+			//float N4 = -12 * gp.y + 36 * gp2.y - 24 * gp3.y + 24 * (gp.x * gp.y) - 8 * (gp2.x * gp.y) - 32 * (gp.x * gp2.y);
+			//float N5 = 8 * gp.y - 16 * gp2.y + 8 * gp3.y - 16 * (gp.x * gp.y) + 8 * (gp2.x * gp.y) + 16 * (gp.x * gp2.y);
+			//float N6 = 4 * gp.x + 12 * gp.y - 4 * gp2.x - 36 * gp2.y + 24 * gp3.y - 24 * (gp.x * gp.y) + 8 * (gp2.x * gp.y) + 32 * (gp.x * gp2.y);
+			//float T12 = 2 * gp.y - 6 * gp2.y + 4 * gp3.y - 4 * gp.x * gp.y + 4 * gp2.x * gp.y + 4 * gp.x * gp2.y;
+			//float T13 = 2 * gp.y - 6 * gp2.y + 4 * gp3.y - 4 * gp.x * gp.y + 8 * gp.x * gp2.y;
+			//float T31 = -2 * (gp.x + gp.y) + 6 * (gp2.x + gp2.y) - 4 * (gp3.x + gp3.y) + 4 * gp.x * gp.y - 4 * gp2.x * gp.y - 4 * gp.x * gp2.y;
+			//float T32 = 2 * gp.y - 6 * gp2.y + 4 * gp3.y - 2 * gp.x * gp.y + 4 * gp.x * gp2.y;
+
+
+			//Point A + AB
+			//float N1 = -4 * gp.x - 5 * gp.y + 11 * gp2.x + 15 * gp2.y - 6 * gp3.x - 10 * gp3.y + 15 * gp.x * gp.y - 10 * gp2.x * gp.y - 20 * gp.x * gp2.y;
+			//float N2 = gp.y - 4 * gp2.y + 4 * gp3.y - gp.x * gp.y + 2 * gp.x * gp2.y;
+			//float N3 = 1 - 4 * (gp.x + gp.y) + 5 * (gp2.x + gp2.y) - 2 * (gp3.x + gp3.y) + 10 * gp.x * gp.y - 6 * gp2.x * gp.y - 6 * gp.x * gp2.y;
+			//float N4 = 8 * gp.x * gp.y - 8 * gp2.x * gp.y;
+			//float N5 = 4 * gp.y - 4 * gp2.y - 12 * gp.x * gp.y + 8 * (gp2.x * gp.y + gp.x * gp2.y);
+			//float N6 = 8 * gp.x + 4 * gp.y - 16 * gp2.x - 12 * gp2.y + 8 * (gp3.x + gp3.y) - 20 * gp.x * gp.y + 16 * (gp2.x * gp.y + gp.x * gp2.y);
+			//float T12 = gp.x * gp.z - 2 * gp.x * gp2.z;
+			//float T13 = gp.x * gp.y - 2 * gp.x * gp2.y;
+			//float T31 = 2 * gp.y - 6 * gp2.y + 4 * gp3.y - 6 * gp.x * gp.y + 4 * gp2.x * gp.y + 8 * gp.x * gp2.y;
+			//float T32 = -2 * gp.y + 6 * gp2.y - 4 * gp3.y + 2 * gp.x * gp.y - 4 * gp.x * gp2.y;
+
+			float gxy = gp.x * gp.y;
+			float gx2y = gp2.x * gp.y;
+			float gxy2 = gp.x * gp2.y;
+			float gx3y = gp3.x * gp.y;
+			float gx2y2 = gp2.x * gp2.y;
+			float gxy3 = gp.x * gp3.y;
+
+			//////FULL 6 NODED!!!
+			float N1 = -5 * gp2.x + 14 * gp3.x - 8 * gp4.x - 0.75 * gxy + 9/4.0 * (gx2y + gxy2) - 1.5 * (gx3y + gxy3) - 3 * gx2y2;
+			float N2 = -5 * gp2.y + 14 * gp3.y - 8 * gp4.y - 0.75 * gxy + 9 / 4.0 * (gx2y + gxy2) - 1.5 * (gx3y + gxy3) - 3 * gx2y2;
+			float N3 = 1 - 11 * (gp2.x + gp2.y) + 18 * (gp3.x + gp3.y) - 8 * (gp4.x + gp4.y) - 2.5 * gxy + 7.5 * (gx2y + gxy2) - 5 * (gx3y + gxy3) + 6 * gx2y2;
+			float N4 = -4 * gxy + 12 * (gx2y + gxy2) - 8 * (gx3y + gxy3);
+			float N5 = 16 * gp2.y - 32 * gp3.y + 16 * gp4.y + 4 * gxy - 12 * (gx2y + gxy2) + 8 * (gx3y + gxy3);
+			float N6 = 16 * gp2.x - 32 * gp3.x + 16 * gp4.x + 4 * gxy - 12 * (gx2y + gxy2) + 8 * (gx3y + gxy3);
+
+			float T12 = -0.25 * (gxy + gx2y) + 0.75 * gxy2 + 1.5 * gx3y - gx2y2 - 0.5 * gxy3;
+			float T13 = -gp2.x + 3 * gp3.x - 2 * gp4.x + 0.125 * gxy + 5 / 8.0 * gx2y - 3 / 8.0 * gxy2 - 7 / 4.0 * gx3y + 0.5 * gx2y2 + 0.25 * gxy3;
+			float T21 = -0.25 * (gxy + gxy2) + 0.75 * gx2y - 0.5 * gx3y - gx2y2 + 1.5 * gxy3;
+			float T23 = -gp2.y + 3 * gp3.y - 2 * gp4.y + 0.125 * gxy - 3 / 8.0 * gx2y + 5 / 8.0 * gxy2 + 0.25 * gx3y + 0.5 * gx2y2 - 7 / 4.0 * gxy3;
+			float T31 = -gp.x + 4 * gp2.x - 5 * gp3.x + 2 * gp4.x + 13 / 8.0 * gxy + 25 / 8.0 * gx2y - 47 / 8.0 * gxy2 - 19 / 4.0 * gx3y - 1.5 * gx2y2 + 21 / 4.0 * gxy3;
+			float T32 = -gp.y + 4 * gp2.y - 5 * gp3.y + 2 * gp4.y + 13 / 8.0 * gxy - 47 / 8.0 * gx2y + 25 / 8.0 * gxy2 + 21 / 4.0 * gx3y - 1.5 * gx2y2 - 19 / 4.0 * gxy3;
+			
+
+			float TAB = 0.5 * gxy - 1.5 * (gx2y + gxy2) + gx3y + 2 * gx2y2 + gxy3;
+			float TBC = 2 * gxy + 2 * gx2y - 6 * gxy2 - 4 * gx3y + 4 * gxy3;
+			float TAC = 2 * gxy - 6 * gx2y + 2 * gxy2 + 4 * gx3y - 4 * gxy3;
+
+			Vector3 p = a * N1
+				+ b * N2
+				+ c * N3
+				+ ab * N4
+				+ bc * N5
+				+ ac * N6
+				+ ta1 * T12
+				+ ta2 * T13
+				+ tb1 * T21
+				+ tb2 * T23
+				+ tc1 * T31
+				+ tc2 * T32
+				+ tab * TAB
+				+ tbc * TBC
+				+ tac * TAC;
+			//	+ (c - a) * T12
+			//	+ (b - a) * T13;
+			 //   + tab * -T12
+				//+ tac * -T13
+				//+ tac * T21
+				//+ tbc * T23;
+
+			//if (Window::GetKeyboard()->KeyDown(KEYBOARD_H))
+			//{
+			//	p -= (c-a) * TBC;
+			////	p += (a - c) * T31 * 0.5;
+			//}
+			//if (Window::GetKeyboard()->KeyDown(KEYBOARD_J))
+			//{
+			//	p -= (c-b) * TAC;
+			////	p += (b - a) * T32;
+			//}
+			//if (Window::GetKeyboard()->KeyDown(KEYBOARD_N))
+			//{
+			//	p -= (c - b + c - a) * TAB;
+			//}
+			//if (Window::GetKeyboard()->KeyDown(KEYBOARD_M))
+			//{
+			//	p -= ( Vector3(0, 0, 5)) * TAB;
+			//}
+
+			gp.x = TBC * 15.f + 0.5f;
+			gp.y = TAC *15.f + 0.5f;
+			gp.z = 0.0f;
+
+			NCLDebug::DrawThickLine(a, a + ta1 * 0.35, 0.02f, Vector4(0.5f, 1.f, 1.f, 1.f));
+			NCLDebug::DrawThickLine(a, a + ta2 * 0.35, 0.02f, Vector4(0.5f, 1.f, 1.f, 1.f));
+			NCLDebug::DrawThickLine(b, b + tac * 0.35, 0.02f, Vector4(0.5f, 1.f, 1.f, 1.f));
+			NCLDebug::DrawThickLine(b, b + tbc * 0.35, 0.02f, Vector4(0.5f, 1.f, 1.f, 1.f));
+			NCLDebug::DrawThickLine(c, c + tac * 0.35, 0.02f, Vector4(0.5f, 1.f, 1.f, 1.f));
+			NCLDebug::DrawThickLine(c, c + tbc * 0.35, 0.02f, Vector4(0.5f, 1.f, 1.f, 1.f));
 
 
 			//HERMITE SPLINE!!!
@@ -1179,35 +1315,35 @@ void FEM6Noded::Render_DrawingToVisualiser()
 
 
 
-			float N1 = 0.5 - 0.5 * gp2.x - 7.5 * (gp2.y + gp2.z) - 9 * gp3.x + 25 * (gp3.y + gp3.z) + 22 * gp4.x - 30 * (gp4.y + gp4.z) - 12 * gp5.x + 12 * (gp5.y + gp5.z);
-			float N2 = 0.5 - 0.5 * gp2.y - 7.5 * (gp2.x + gp2.z) - 9 * gp3.y + 25 * (gp3.x + gp3.z) + 22 * gp4.y - 30 * (gp4.x + gp4.z) - 12 * gp5.y + 12 * (gp5.x + gp5.z);
-			float N3 = 0.5 - 0.5 * gp2.z - 7.5 * (gp2.y + gp2.x) - 9 * gp3.z + 25 * (gp3.y + gp3.x) + 22 * gp4.z - 30 * (gp4.y + gp4.x) - 12 * gp5.z + 12 * (gp5.y + gp5.x);
-			float N4 = 8 * (gp2.x + gp2.y - gp2.z + gp4.x + gp4.y - gp4.z + 2 * (-gp3.x - gp3.y + gp3.z));
-			float N5 = 8 * (-gp2.x + gp2.y + gp2.z - gp4.x + gp4.y + gp4.z + 2 * (gp3.x - gp3.y - gp3.z));
-			float N6 = 8 * (gp2.x - gp2.y + gp2.z + gp4.x - gp4.y + gp4.z + 2 * (-gp3.x + gp3.y - gp3.z));
+			//float N1 = 0.5 - 0.5 * gp2.x - 7.5 * (gp2.y + gp2.z) - 9 * gp3.x + 25 * (gp3.y + gp3.z) + 22 * gp4.x - 30 * (gp4.y + gp4.z) - 12 * gp5.x + 12 * (gp5.y + gp5.z);
+			//float N2 = 0.5 - 0.5 * gp2.y - 7.5 * (gp2.x + gp2.z) - 9 * gp3.y + 25 * (gp3.x + gp3.z) + 22 * gp4.y - 30 * (gp4.x + gp4.z) - 12 * gp5.y + 12 * (gp5.x + gp5.z);
+			//float N3 = 0.5 - 0.5 * gp2.z - 7.5 * (gp2.y + gp2.x) - 9 * gp3.z + 25 * (gp3.y + gp3.x) + 22 * gp4.z - 30 * (gp4.y + gp4.x) - 12 * gp5.z + 12 * (gp5.y + gp5.x);
+			//float N4 = 8 * (gp2.x + gp2.y - gp2.z + gp4.x + gp4.y - gp4.z + 2 * (-gp3.x - gp3.y + gp3.z));
+			//float N5 = 8 * (-gp2.x + gp2.y + gp2.z - gp4.x + gp4.y + gp4.z + 2 * (gp3.x - gp3.y - gp3.z));
+			//float N6 = 8 * (gp2.x - gp2.y + gp2.z + gp4.x - gp4.y + gp4.z + 2 * (-gp3.x + gp3.y - gp3.z));
 
 
-			float T7 = 4 * (-gp2.x - gp2.y + gp2.z) + 16 * (gp3.x + gp3.y - gp3.z) + 20 * (-gp4.x - gp4.y + gp4.z) + 8 * (gp5.x + gp5.y - gp5.z);
-			float T8 = 4 * (gp2.x - gp2.y - gp2.z) + 16 * (-gp3.x + gp3.y + gp3.z) + 20 * (gp4.x - gp4.y - gp4.z) + 8 * (-gp5.x + gp5.y + gp5.z);
-			float T9 = 4 * (-gp2.x + gp2.y - gp2.z) + 16 * (gp3.x - gp3.y + gp3.z) + 20 * (-gp4.x + gp4.y - gp4.z) + 8 * (gp5.x - gp5.y + gp5.z);
+			//float T7 = 4 * (-gp2.x - gp2.y + gp2.z) + 16 * (gp3.x + gp3.y - gp3.z) + 20 * (-gp4.x - gp4.y + gp4.z) + 8 * (gp5.x + gp5.y - gp5.z);
+			//float T8 = 4 * (gp2.x - gp2.y - gp2.z) + 16 * (-gp3.x + gp3.y + gp3.z) + 20 * (gp4.x - gp4.y - gp4.z) + 8 * (-gp5.x + gp5.y + gp5.z);
+			//float T9 = 4 * (-gp2.x + gp2.y - gp2.z) + 16 * (gp3.x - gp3.y + gp3.z) + 20 * (-gp4.x + gp4.y - gp4.z) + 8 * (gp5.x - gp5.y + gp5.z);
 
-			float T1 = -gp2.x + 5 * gp3.x - 8 * gp4.x + 4 * gp5.x;
-			float T2 = -gp2.y + 5 * gp3.y - 8 * gp4.y + 4 * gp5.y;
-			float T3 = -gp2.z + 5 * gp3.z - 8 * gp4.z + 4 * gp5.z;
+			//float T1 = -gp2.x + 5 * gp3.x - 8 * gp4.x + 4 * gp5.x;
+			//float T2 = -gp2.y + 5 * gp3.y - 8 * gp4.y + 4 * gp5.y;
+			//float T3 = -gp2.z + 5 * gp3.z - 8 * gp4.z + 4 * gp5.z;
 
-			float T4 = gp.y + 4 * (gp2.x + gp2.z) - 10 * gp2.y - 16 * (gp3.x + gp3.z) + 29 * gp3.y + 20 * (gp4.x + gp4.z) - 32 * gp4.y - 8 * (gp5.x + gp5.z) + 12 * gp5.y;
-			float T5 = gp.z + 4 * (gp2.x + gp2.y) - 10 * gp2.z - 16 * (gp3.x + gp3.y) + 29 * gp3.z + 20 * (gp4.x + gp4.y) - 32 * gp4.z - 8 * (gp5.x + gp5.y) + 12 * gp5.z;
-			float T6 = gp.x + 4 * (gp2.y + gp2.z) - 10 * gp2.x - 16 * (gp3.y + gp3.z) + 29 * gp3.x + 20 * (gp4.y + gp4.z) - 32 * gp4.x - 8 * (gp5.y + gp5.z) + 12 * gp5.x;
+			//float T4 = gp.y + 4 * (gp2.x + gp2.z) - 10 * gp2.y - 16 * (gp3.x + gp3.z) + 29 * gp3.y + 20 * (gp4.x + gp4.z) - 32 * gp4.y - 8 * (gp5.x + gp5.z) + 12 * gp5.y;
+			//float T5 = gp.z + 4 * (gp2.x + gp2.y) - 10 * gp2.z - 16 * (gp3.x + gp3.y) + 29 * gp3.z + 20 * (gp4.x + gp4.y) - 32 * gp4.z - 8 * (gp5.x + gp5.y) + 12 * gp5.z;
+			//float T6 = gp.x + 4 * (gp2.y + gp2.z) - 10 * gp2.x - 16 * (gp3.y + gp3.z) + 29 * gp3.x + 20 * (gp4.y + gp4.z) - 32 * gp4.x - 8 * (gp5.y + gp5.z) + 12 * gp5.x;
 
-			Vector3 p = a * N1
-				+ b * N2
-				+ c * N3
-				+ ab * N4
-				+ bc * N5
-				+ ac * N6
-				+ tab * T7 * n23
-				+ tbc * T8 * n23
-				+ tac * T9 * n23;
+			//Vector3 p = a * N1
+			//	+ b * N2
+			//	+ c * N3
+			//	+ ab * N4
+			//	+ bc * N5
+			//	+ ac * N6
+			//	+ tab * T7 * n23
+			//	+ tbc * T8 * n23
+			//	+ tac * T9 * n23;
 				//+ ta1 * -T1;
 				//+ tb1 * T2
 				//+ tc1 * T3
@@ -1257,29 +1393,29 @@ void FEM6Noded::Render_DrawingToVisualiser()
 
 				float f = -1.5;
 
-				p = a * N1
-					+ b * N2
-					+ c * N3
-					+ ab * N4
-					+ bc * N5
-					+ ac * N6
-					+ (bc - ab) * T7X * n23 * 0.5f
-					+ (ac - ab) * T7 * n23 * 0.5f
-					//+ tab * T7 * n23
-					+ ((b - a)) * T8 * n23 * 0.5f
-					+ ((c - a)) * T8Y * n23 * 0.5f
+				//p = a * N1
+				//	+ b * N2
+				//	+ c * N3
+				//	+ ab * N4
+				//	+ bc * N5
+				//	+ ac * N6
+				//	+ (bc - ab) * T7X * n23 * 0.5f
+				//	+ (ac - ab) * T7 * n23 * 0.5f
+				//	//+ tab * T7 * n23
+				//	+ ((b - a)) * T8 * n23 * 0.5f
+				//	+ ((c - a)) * T8Y * n23 * 0.5f
 
-					+ ((b - a))  * T9 * n23 * 0.5f
-					+ ((b - c))  * T9Z * n23 * 0.5f
+				//	+ ((b - a))  * T9 * n23 * 0.5f
+				//	+ ((b - c))  * T9Z * n23 * 0.5f
 
-					+ (b - a) * T1 * T4 * f
-					+ (c - a) * T3 * T4 * f
+				//	+ (b - a) * T1 * T4 * f
+				//	+ (c - a) * T3 * T4 * f
 
-					+ (a - b) * T2 * T5 * f
-					+ (c - b) * T3 * T5 * f
+				//	+ (a - b) * T2 * T5 * f
+				//	+ (c - b) * T3 * T5 * f
 
-					+ (b - c) * T1 * T6 * f
-					+ (a - c) * T2 * T6 * f;
+				//	+ (b - c) * T1 * T6 * f
+				//	+ (a - c) * T2 * T6 * f;
 
 					//+ (bc - a) * -2.0f * TX
 					//+ (ac - b) * -2.0f * TY
@@ -1296,16 +1432,6 @@ void FEM6Noded::Render_DrawingToVisualiser()
 				NCLDebug::DrawThickLine(bc, bc + (c - a) * 0.35, 0.02f, Vector4(0.5f, 1.f, 1.f, 1.f));
 				NCLDebug::DrawThickLine(ac, ac + (b - c) * 0.35, 0.02f, Vector4(0.5f, 1.f, 1.f, 1.f));
 			}
-
-			//T7 = 4 * (-gp2.x + gp2.z) + 16 * (gp3.x - gp3.z) + 20 * (-gp4.x + gp4.z) + 8 * (gp5.x - gp5.z);
-			float T7X = 4 * (-gp2.y + gp2.z) + 16 * (gp3.y - gp3.z) + 20 * (-gp4.y + gp4.z) + 8 * (gp5.y - gp5.z);
-
-			if (Window::GetKeyboard()->KeyDown(KEYBOARD_V))
-				gp.y =  T7 * 5.f + 0.5f;
-			else
-				gp.y = T1 * 5.f + 0.5f;
-
-			gp.x = gp.z = (gp.y-0.5) * 5.f + 0.5f;
 
 			return p;
 		};
