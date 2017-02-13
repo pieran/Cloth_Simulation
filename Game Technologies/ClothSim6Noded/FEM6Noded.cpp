@@ -648,18 +648,22 @@ void FEM6Noded::BuildTransformationMatrix(const FETriangle& tri, const std::vect
 	out_ja(1, 1) = V_eta.dot(V_y);
 }
 
+
+
 void FEM6Noded::CalcBMatrix(const FETriangle& tri, const std::vector<Vector3>& pos, const Vec3& gaussPoint, const float warp_angle, const VDisplacement& displacements, BMatrix& out_b, JaMatrix& out_ja, GMatrix& out_g)
 {
+
 	Mat26 DN;
 	Mat33 T;
-
+	BMatrix B_l, B_nl;
+	
 	BuildTransformationMatrix(tri, pos, gaussPoint, warp_angle, T, out_ja, DN);
 
 	Mat22 Ja_inv = out_ja.inverse();
 
 	auto a = Ja_inv * DN;
 
-	BMatrix B_l, B_nl;
+	
 
 	for (int i = 0; i < 6; ++i)
 	{
@@ -755,6 +759,8 @@ void FEM6Noded::SimpleCorotatedBuildAMatrix(float dt)
 	d_0.setZero();
 
 	Eigen::Matrix<float, 18, 18> K_E, K_S, K_T;
+	Eigen::Matrix<float, 6, 6> M; M.setZero();
+	
 	for (uint i = 0; i < m_NumTriangles; ++i)
 	{
 		FETriangle& tri = m_Triangles[i];
@@ -788,7 +794,7 @@ void FEM6Noded::SimpleCorotatedBuildAMatrix(float dt)
 			float tfactor = GaussWeight12(j) * area;
 
 
-			Eigen::Matrix<float, 6, 6> M; M.setZero();
+			
 			M(0, 0) = stress.x();
 			M(1, 1) = stress.x();
 			M(2, 2) = stress.x();
@@ -826,8 +832,8 @@ void FEM6Noded::SimpleCorotatedBuildAMatrix(float dt)
 			{
 				uint idxJ = tri.phyxels[j];
 				uint idxK = tri.phyxels[k];
-
 				Matrix3 submtx;
+				
 				submtx._11 = K_T(j * 3 + 0, k * 3 + 0);
 				submtx._12 = K_T(j * 3 + 0, k * 3 + 1);
 				submtx._13 = K_T(j * 3 + 0, k * 3 + 2);
@@ -951,6 +957,150 @@ void FEM6Noded::SimpleCorotatedBuildAMatrix(float dt)
 
 void FEM6Noded::Render_DrawingToVisualiser()
 {
+
+	Eigen::Matrix<float, 15, 15> C; C.setZero();
+
+	//A
+	C(0, 0) = 1;
+	C(0, 1) = 1;
+	C(0, 3) = 1;
+	C(0, 5) = 1;
+	C(0, 7) = 1;
+
+	//B
+	C(1, 0) = 1;
+	C(1, 2) = 1;
+	C(1, 4) = 1;
+	C(1, 6) = 1;
+	C(1, 8) = 1;
+
+	//C
+	C(2, 0) = 1;
+
+	//AB
+	C(3, 0) = 1;
+	C(3, 1) = 0.5;
+	C(3, 2) = 0.5;
+	C(3, 3) = 0.25;
+	C(3, 4) = 0.25;
+	C(3, 5) = 0.125;
+	C(3, 6) = 0.125;
+	C(3, 7) = 0.0625;
+	C(3, 8) = 0.0625;
+	C(3, 9) = 0.25;
+	C(3, 10) = 0.125;
+	C(3, 11) = 0.125;
+	C(3, 12) = 0.0625;
+	C(3, 13) = 0.0625;
+	C(3, 14) = 0.0625;
+
+	//BC
+	C(4, 0) = 1;
+	C(4, 2) = 0.5;
+	C(4, 4) = 0.25;
+	C(4, 6) = 0.125;
+	C(4, 8) = 0.0625;
+
+	//AC
+	C(5, 0) = 1;
+	C(5, 1) = 0.5;
+	C(5, 3) = 0.25;
+	C(5, 5) = 0.125;
+	C(5, 7) = 0.0625;
+
+	//A->B
+	C(6, 1) = -1;
+	C(6, 3) = -2;
+	C(6, 5) = -3;
+	C(6, 7) = -4;
+
+	//A->C
+	C(7, 1) = -1;
+	C(7, 2) = 1;
+	C(7, 3) = -2;
+	C(7, 5) = -3;
+	C(7, 7) = -4;
+	C(7, 9) = 1;
+	C(7, 10) = 1;
+	C(7, 12) = 1;
+
+	//B->A
+	C(8, 2) = -1;
+	C(8, 4) = -2;
+	C(8, 6) = -3;
+	C(8, 8) = -4;
+
+	//B->C
+	C(9, 1) = 1;
+	C(9, 2) = -1;
+	C(9, 4) = -2;
+	C(9, 6) = -3;
+	C(9, 8) = -4;
+	C(9, 9) = 1;
+	C(9, 11) = 1;
+	C(9, 14) = 1;
+
+	//C->A
+	C(10, 2) = -1;
+
+	//C->B
+	C(11, 1) = -1;
+
+	//AB->C
+	C(12, 1) = -1 * 0.5;
+	C(12, 2) = -1 * 0.5;
+	C(12, 3) = -1 * 0.5;
+	C(12, 4) = -1 * 0.5;
+	C(12, 5) = -0.75 * 0.5;
+	C(12, 6) = -0.75 * 0.5;
+	C(12, 7) = -0.5 * 0.5;
+	C(12, 8) = -0.5 * 0.5;
+	C(12, 9) = -1 * 0.5;
+	C(12, 10) = -0.75 * 0.5;
+	C(12, 11) = -0.75 * 0.5;
+	C(12, 12) = -0.5 * 0.5;
+	C(12, 13) = -0.5 * 0.5;
+	C(12, 14) = -0.5 * 0.5;
+
+	//BC->A
+	C(13, 1) = 1;
+	C(13, 9) = 0.5;
+	C(13, 11) =0.25;
+	C(13, 14) = 0.125;
+
+	C(13, 2) = -1 * 0.5;
+	C(13, 4) = -1 * 0.5;
+	C(13, 6) = -0.75 * 0.5;
+	C(13, 8) = -0.5 * 0.5;
+	
+	//AC->B
+	C(14, 2) = 1;
+	C(14, 9) = 0.5;
+	C(14, 10) = 0.25;
+	C(14, 12) = 0.125;
+
+	C(14, 1) = -1 * 0.5;
+	C(14, 3) = -1 * 0.5;
+	C(14, 5) = -0.75 * 0.5;
+	C(14, 7) = -0.5 * 0.5;
+
+	float det = C.determinant();
+	if (det == 0.0f)
+	{
+		throw("ERROR: Unable to invert matrix!!");
+		return;
+	}
+
+	auto coeffs = C.inverse();
+	Eigen::Matrix<float, 15, 1> scalars;
+	Eigen::Matrix<float, 15, 1> coeff_cols[15];
+	for (int i = 0; i < 15; ++i)
+	{
+		coeff_cols[i] = coeffs.col(i);
+	}
+
+
+
 	unsigned int i;
 	for (i = 0; i < m_NumTriangles; ++i)
 	{
@@ -992,7 +1142,7 @@ void FEM6Noded::Render_DrawingToVisualiser()
 
 
 
-		int nsteps = 32;
+		int nsteps = 16;
 		float step = 1.f / float(nsteps);
 		Vector3 inv_light_dir = Vector3(0.5f, 1.0f, -0.8f);
 		inv_light_dir.Normalise();
@@ -1052,8 +1202,8 @@ void FEM6Noded::Render_DrawingToVisualiser()
 
 
 
-	//	if (i > 0)
-	//		continue;
+		//if (i > 0)
+		//	continue;
 
 
 		Vector3 ta1 = (b - a);
@@ -1066,22 +1216,71 @@ void FEM6Noded::Render_DrawingToVisualiser()
 		Vector3 tc2 = (c - b);
 		
 		
-		Vector3 tab = ((b - c) + (a - c));
-		Vector3 tbc = (a - c);
-		Vector3 tac = (b - c);
+		Vector3 tab = c - ab;
+		Vector3 tbc = a - bc;
+		Vector3 tac = b - ac;
 
-		//if (i == 0)
-		//{
-		//	tab = (m_PhyxelsPos[8] - m_PhyxelsPos[0] );//
-		//}
-		//else
-		//{
-		//	tac = (m_PhyxelsPos[0] - m_PhyxelsPos[8]);//
-		//}
+		if (i == 0)
+		{
+			tab = (m_PhyxelsPos[0] - m_PhyxelsPos[8]) * 0.5;
+		}
+		else
+		{
+			tac = (m_PhyxelsPos[8] - m_PhyxelsPos[0]) * 0.5;
+		}
 
+		const int width = 9;
+		auto calc_offset = [&](int pidx, int xoffset, int yoffset, float* divisor)
+		{
+			int x = pidx % width + xoffset;
+			int y = pidx / width + yoffset;
 
+			if (x >= 0 && x < width
+				&& y >= 0 && y < width)
+			{
+				int nidx = y * width + x;
+				*divisor += 1.f;
+				return m_PhyxelsPos[pidx] - m_PhyxelsPos[nidx];
+			}
 
+			return Vector3(0, 0, 0);
+		};
+		
+		uint idxA = t.phyxels[0];
+		uint idxB = t.phyxels[1];
+		uint idxC = t.phyxels[2];
+		uint idxAB = t.phyxels[3];
+		uint idxBC = t.phyxels[4];
+		uint idxAC = t.phyxels[5];
 
+		float divisor = 0.f;
+		if (i % 2 == 0)
+		{
+			ta1 = (calc_offset(idxA, -1, 1, &divisor) - calc_offset(idxA, 1, -1, &divisor)); ta1 = ta1 / divisor * 2.f; divisor = 0.f;
+			ta2 = (calc_offset(idxA, 0, 1, &divisor) - calc_offset(idxA, 0, -1, &divisor)); ta2 = ta2 / divisor * 2.f; divisor = 0.f;
+			tb1 = (calc_offset(idxB, 1, -1, &divisor) - calc_offset(idxB, -1, 1, &divisor)); tb1 = tb1 / divisor * 2.f; divisor = 0.f;
+			tb2 = (calc_offset(idxB, 1, 0, &divisor) - calc_offset(idxB, -1, 0, &divisor)); tb2 = tb2 / divisor * 2.f; divisor = 0.f;
+			tc1 = (calc_offset(idxC, 0, 1, &divisor) - calc_offset(idxC, 0, -1, &divisor)); tc1 = tc1 / divisor * 2.f; divisor = 0.f;
+			tc2 = (calc_offset(idxC, 1, 0, &divisor) - calc_offset(idxC, -1, 0, &divisor)); tc2 = tc2 / divisor * 2.f; divisor = 0.f;
+
+			tab = (calc_offset(idxAB, 1, 1, &divisor) + calc_offset(idxAB, 0, 1, &divisor) + calc_offset(idxAB, 1, 0, &divisor) - calc_offset(idxAB, -1, 0, &divisor) - calc_offset(idxAB, 0, -1, &divisor) - calc_offset(idxAB, -1, -1, &divisor)); tab = tab / divisor * 2.0f; divisor = 0.f;
+			tab = (calc_offset(idxAB, 1, 1, &divisor) - calc_offset(idxAB, -1, -1, &divisor)); tab = tab / divisor; divisor = 0.f;
+			tbc = (calc_offset(idxBC, 1, -2, &divisor) - calc_offset(idxBC, -1, 2, &divisor)); tbc = tbc / divisor;	divisor = 0.f;
+			tac = (calc_offset(idxAC, -2, 1, &divisor) - calc_offset(idxAC, 2, -1, &divisor)); tac = tac / divisor; divisor = 0.f;
+		}
+		else
+		{
+			ta1 = (calc_offset(idxA, -1, 0, &divisor) - calc_offset(idxA, 1, 0, &divisor)); ta1 = ta1 / divisor * 2.f; divisor = 0.f;
+			ta2 = (calc_offset(idxA, -1, 1, &divisor) - calc_offset(idxA, 1, -1, &divisor)); ta2 = ta2 / divisor * 2.f; divisor = 0.f;
+			tb1 = (calc_offset(idxB, 1, 0, &divisor) - calc_offset(idxB, -1, 0, &divisor)); tb1 = tb1 / divisor * 2.f; divisor = 0.f;
+			tb2 = (calc_offset(idxB, 0, 1, &divisor) - calc_offset(idxB, 0, -1, &divisor)); tb2 = tb2 / divisor * 2.f; divisor = 0.f;
+			tc1 = (calc_offset(idxC, -1, 1, &divisor) - calc_offset(idxC, 1, -1, &divisor)); tc1 = tc1 / divisor * 2.f; divisor = 0.f;
+			tc2 = (calc_offset(idxC, 0, 1, &divisor) - calc_offset(idxC, 0, -1, &divisor)); tc2 = tc2 / divisor * 2.f; divisor = 0.f;
+
+			tab = (calc_offset(idxAB, -1, 2, &divisor) - calc_offset(idxAB, 1, -2, &divisor)); tab = tab / divisor; divisor = 0.f;
+			tbc = (calc_offset(idxBC, 2, -1, &divisor) - calc_offset(idxBC, -2, 1, &divisor)); tbc = tbc / divisor;	divisor = 0.f;
+			tac = (calc_offset(idxAC, -1, -1, &divisor) - calc_offset(idxAC, 1, 1, &divisor)); tac = tac / divisor; divisor = 0.f;
+		}
 
 	//	tab *= 2;
 	//	tbc *= 2;
@@ -1125,6 +1324,8 @@ void FEM6Noded::Render_DrawingToVisualiser()
 			Vector3 gp3 = gp * gp * gp;
 			Vector3 gp4 = gp2 * gp2;
 			Vector3 gp5 = gp3 * gp2;
+
+
 
 			//DEFAULT QUADRATIC!!!
 			/*Vector3 p;
@@ -1193,24 +1394,111 @@ void FEM6Noded::Render_DrawingToVisualiser()
 			float gxy3 = gp.x * gp3.y;
 
 			//////FULL 6 NODED!!!
-			float N1 = -5 * gp2.x + 14 * gp3.x - 8 * gp4.x - 0.75 * gxy + 9/4.0 * (gx2y + gxy2) - 1.5 * (gx3y + gxy3) - 3 * gx2y2;
-			float N2 = -5 * gp2.y + 14 * gp3.y - 8 * gp4.y - 0.75 * gxy + 9 / 4.0 * (gx2y + gxy2) - 1.5 * (gx3y + gxy3) - 3 * gx2y2;
-			float N3 = 1 - 11 * (gp2.x + gp2.y) + 18 * (gp3.x + gp3.y) - 8 * (gp4.x + gp4.y) - 2.5 * gxy + 7.5 * (gx2y + gxy2) - 5 * (gx3y + gxy3) + 6 * gx2y2;
-			float N4 = -4 * gxy + 12 * (gx2y + gxy2) - 8 * (gx3y + gxy3);
-			float N5 = 16 * gp2.y - 32 * gp3.y + 16 * gp4.y + 4 * gxy - 12 * (gx2y + gxy2) + 8 * (gx3y + gxy3);
-			float N6 = 16 * gp2.x - 32 * gp3.x + 16 * gp4.x + 4 * gxy - 12 * (gx2y + gxy2) + 8 * (gx3y + gxy3);
+			//float N1 = -5 * gp2.x + 14 * gp3.x - 8 * gp4.x - 3 * gxy + 9 * (gx2y + gxy2) - 6 * (gx3y + gxy3) - 12 * gx2y2;
+			//float N2 = -5 * gp2.y + 14 * gp3.y - 8 * gp4.y - 3 * gxy + 9 * (gx2y + gxy2) - 6 * (gx3y + gxy3) - 12 * gx2y2;
+			//float N3 = 1 - 11 * (gp2.x + gp2.y) + 18 * (gp3.x + gp3.y) - 8 * (gp4.x + gp4.y) - 10 * gxy + 30 * (gx2y + gxy2) - 20 * (gx3y + gxy3) - 24 * gx2y2;
+			//float N4 = -16 * gxy + 48 * (gx2y + gxy2) - 32 * (gx3y + gxy3) - 48 * gx2y2;
+			//float N5 = 16 * gp2.y - 32 * gp3.y + 16 * gp4.y + 16 * gxy - 48 * (gx2y + gxy2) + 32 * (gx3y + gxy3) + 48 * gx2y2;
+			//float N6 = 16 * gp2.x - 32 * gp3.x + 16 * gp4.x + 16 * gxy - 48 * (gx2y + gxy2) + 32 * (gx3y + gxy3) + 48 * gx2y2;
 
-			float T12 = -0.25 * (gxy + gx2y) + 0.75 * gxy2 + 1.5 * gx3y - gx2y2 - 0.5 * gxy3;
-			float T13 = -gp2.x + 3 * gp3.x - 2 * gp4.x + 0.125 * gxy + 5 / 8.0 * gx2y - 3 / 8.0 * gxy2 - 7 / 4.0 * gx3y + 0.5 * gx2y2 + 0.25 * gxy3;
-			float T21 = -0.25 * (gxy + gxy2) + 0.75 * gx2y - 0.5 * gx3y - gx2y2 + 1.5 * gxy3;
-			float T23 = -gp2.y + 3 * gp3.y - 2 * gp4.y + 0.125 * gxy - 3 / 8.0 * gx2y + 5 / 8.0 * gxy2 + 0.25 * gx3y + 0.5 * gx2y2 - 7 / 4.0 * gxy3;
-			float T31 = -gp.x + 4 * gp2.x - 5 * gp3.x + 2 * gp4.x + 13 / 8.0 * gxy + 25 / 8.0 * gx2y - 47 / 8.0 * gxy2 - 19 / 4.0 * gx3y - 1.5 * gx2y2 + 21 / 4.0 * gxy3;
-			float T32 = -gp.y + 4 * gp2.y - 5 * gp3.y + 2 * gp4.y + 13 / 8.0 * gxy - 47 / 8.0 * gx2y + 25 / 8.0 * gxy2 + 21 / 4.0 * gx3y - 1.5 * gx2y2 - 19 / 4.0 * gxy3;
+			//float T12 = 0.5 * (-gxy + gx2y) + 1.5 * gxy2 + gx3y - 2 * gx2y2 - gxy3;
+			//float T13 = -gp2.x + 3 * gp3.x - 2 * gp4.x + gx2y - 2 * gx3y;
+			//float T21 = -0.5 * gxy + 1.5 * gx2y + 0.5 * gxy2 - gx3y - 2 * gx2y2 + gxy3;
+			//float T23 = -gp2.y + 3 * gp3.y - 2 * gp4.y + gxy2 - 2 * gxy3;
+			//float T31 = -gp.x + 4 * gp2.x - 5 * gp3.x + 2 * gp4.x + 3 * gxy - gx2y - 10 * gxy2 - 2 * gx3y + 4 * gx2y2 + 8 * gxy3;
+			//float T32 = -gp.y + 4 * gp2.y - 5 * gp3.y + 2 * gp4.y + 3 * gxy - 10 * gx2y - gxy2 + 8 * gx3y + 4 * gx2y2 - 2 * gxy3;
+
+			//float TAB = 2 * gxy - 6 * (gx2y + gxy2) + 4 * (gx3y + gxy3) + 8 * gx2y2;
+			//float TBC = 4 * gxy - 4 * gx2y - 12 * gxy2 + 8 * gx2y2 + 8 * gxy3;
+			//float TAC = 4 * gxy - 12 * gx2y - 4 * gxy2 + 8 * gx2y2 + 8 * gx3y;
+
+
+			//FULL 6 NODED (ALT TAB/TBC/TAC)
+			//float N1 = -5 * gp2.x + 14 * gp3.x - 8 * gp4.x + 9 * gxy - 3 * gx2y - 27 * gxy2 - 6 * gx3y + 12 * gx2y2 + 18 * gxy3;
+			//float N2 = -5 * gp2.y + 14 * gp3.y - 8 * gp4.y + 9 * gxy - 27 * gx2y - 3 * gxy2 + 18 * gx3y + 12 * gx2y2 - 6 * gxy3;
+			//float N3 = 1 - 11 * (gp2.x + gp2.y) + 18 * (gp3.x + gp3.y) - 8 * (gp4.x + gp4.y) - 34 * gxy + 78 * (gx2y + gxy2) - 44 * (gx3y + gxy3) - 72 * gx2y2;
+			//float N4 = -16 * gxy + 48 * (gx2y + gxy2) - 32 * (gx3y + gxy3) - 48 * gx2y2;
+			//float N5 = 16 * gp2.y - 32 * gp3.y + 16 * gp4.y + 16 * gxy - 48 * (gx2y + gxy2) + 32 * (gx3y + gxy3) + 48 * gx2y2;
+			//float N6 = 16 * gp2.x - 32 * gp3.x + 16 * gp4.x + 16 * gxy - 48 * (gx2y + gxy2) + 32 * (gx3y + gxy3) + 48 * gx2y2;
+
+			//float T12 = 0.5 * (-gxy + gx2y) + 1.5 * gxy2 + gx3y - 2 * gx2y2 - gxy3;
+			//float T13 = -gp2.x + 3 * gp3.x - 2 * gp4.x + 0.5 * (gxy + gx2y) - 1.5 * gxy2 - 2 * gx3y + gx2y2 + gxy3;
+			//float T21 = -0.5 * gxy + 1.5 * gx2y + 0.5 * gxy2 - gx3y - 2 * gx2y2 + gxy3;
+			//float T23 = -gp2.y + 3 * gp3.y - 2 * gp4.y + 0.5 * gxy - 1.5 * gx2y + 0.5 * gxy2 + gx3y + gx2y2 - 2 * gxy3;
+			//float T31 = -gp.x + 4 * gp2.x - 5 * gp3.x + 2 * gp4.x + 3.5 * gxy - 9.5 * gx2y - 3.5 * gxy2 + 6 * gx3y + 5 * gx2y2 + gxy3;
+			//float T32 = -gp.y + 4 * gp2.y - 5 * gp3.y + 2 * gp4.y + 3.5 * gxy - 3.5 * gx2y - 9.5 * gxy2 + gx3y + 5 * gx2y2 + 6 * gx3y;
+
+
+			//float TAB = 2 * gxy - 6 * (gx2y + gxy2) + 4 * (gx3y + gxy3) + 8 * gx2y2;
+			//float TBC = 2 * gxy - 6 * gx2y - 2 * gxy2 + 4 * gx3y + 4 * gx2y2;
+			//float TAC = 2 * gxy - 2 * gx2y - 6 * gxy2 + 4 * gx2y2 + 4 * gxy3;
+
+
+
+		
+
+			scalars(0, 0) = 0.0f;
+			scalars(1, 0) = gp.x;
+			scalars(2, 0) = gp.y;
+			scalars(3, 0) = gp2.x;
+			scalars(4, 0) = gp2.y;
+			scalars(5, 0) = gp3.x;
+			scalars(6, 0) = gp3.y;
+			scalars(7, 0) = gp4.x;
+			scalars(8, 0) = gp4.y;
+			scalars(9, 0) = gxy;
+			scalars(10, 0) = gx2y;
+			scalars(11, 0) = gxy2;
+			scalars(12, 0) = gx3y;
+			scalars(13, 0) = gx2y2;
+			scalars(14, 0) = gxy3;
+
+
+
+			float N1 = coeff_cols[0][0] + coeff_cols[0].dot(scalars);
+			float N2 = coeff_cols[1][0] + coeff_cols[1].dot(scalars);
+			float N3 = coeff_cols[2][0] + coeff_cols[2].dot(scalars);
+			float N4 = coeff_cols[3][0] + coeff_cols[3].dot(scalars);
+			float N5 = coeff_cols[4][0] + coeff_cols[4].dot(scalars);
+			float N6 = coeff_cols[5][0] + coeff_cols[5].dot(scalars);
+
+			float T12 = coeff_cols[7][0] + coeff_cols[7].dot(scalars);
+			float T13 = coeff_cols[6][0] + coeff_cols[6].dot(scalars);
+			float T21 = coeff_cols[9][0] + coeff_cols[9].dot(scalars);
+			float T23 = coeff_cols[8][0] + coeff_cols[8].dot(scalars);
+			float T31 = coeff_cols[11][0] + coeff_cols[11].dot(scalars);
+			float T32 = coeff_cols[10][0] + coeff_cols[10].dot(scalars);
+
+			float TAB = coeff_cols[12][0] + coeff_cols[12].dot(scalars);
+			float TBC = coeff_cols[13][0] + coeff_cols[13].dot(scalars);
+			float TAC = coeff_cols[14][0] + coeff_cols[14].dot(scalars);
+
 			
 
-			float TAB = 0.5 * gxy - 1.5 * (gx2y + gxy2) + gx3y + 2 * gx2y2 + gxy3;
-			float TBC = 2 * gxy + 2 * gx2y - 6 * gxy2 - 4 * gx3y + 4 * gxy3;
-			float TAC = 2 * gxy - 6 * gx2y + 2 * gxy2 + 4 * gx3y - 4 * gxy3;
+			//Vector3 p = a * N1
+			//	+ b * N2
+			//	+ c * N3
+			//	+ ab * N4
+			//	+ bc * N5
+			//	+ ac * N6;
+
+			//if (Window::GetKeyboard()->KeyDown(KEYBOARD_B))
+			//{
+			//	p += ta1 * T12
+			//		+ ta2 * T13
+			//		+ tb1 * T21
+			//		+ tb2 * T23
+			//		+ tc1 * T31
+			//		+ tc2 * T32;
+
+			//}
+			//if (Window::GetKeyboard()->KeyDown(KEYBOARD_N))
+			//{
+			//	p += tab * TAB
+			//		+ tbc * TBC
+			//		+ tac * TAC;
+			//}
+
 
 			Vector3 p = a * N1
 				+ b * N2
@@ -1253,17 +1541,20 @@ void FEM6Noded::Render_DrawingToVisualiser()
 			//	p -= ( Vector3(0, 0, 5)) * TAB;
 			//}
 
-			gp.x = TBC * 15.f + 0.5f;
-			gp.y = TAC *15.f + 0.5f;
-			gp.z = 0.0f;
+			//gp.x = TBC * 15.f + 0.5f;
+			//gp.y = TAC *15.f + 0.5f;
+			//gp.z = 0.0f;
 
-			NCLDebug::DrawThickLine(a, a + ta1 * 0.35, 0.02f, Vector4(0.5f, 1.f, 1.f, 1.f));
-			NCLDebug::DrawThickLine(a, a + ta2 * 0.35, 0.02f, Vector4(0.5f, 1.f, 1.f, 1.f));
-			NCLDebug::DrawThickLine(b, b + tac * 0.35, 0.02f, Vector4(0.5f, 1.f, 1.f, 1.f));
-			NCLDebug::DrawThickLine(b, b + tbc * 0.35, 0.02f, Vector4(0.5f, 1.f, 1.f, 1.f));
-			NCLDebug::DrawThickLine(c, c + tac * 0.35, 0.02f, Vector4(0.5f, 1.f, 1.f, 1.f));
-			NCLDebug::DrawThickLine(c, c + tbc * 0.35, 0.02f, Vector4(0.5f, 1.f, 1.f, 1.f));
+			//NCLDebug::DrawThickLine(a, a + ta1 * 0.35, 0.02f, Vector4(0.5f, 1.f, 1.f, 1.f));
+			//NCLDebug::DrawThickLine(a, a + ta2 * 0.35, 0.02f, Vector4(0.5f, 1.f, 1.f, 1.f));
+			//NCLDebug::DrawThickLine(b, b + tac * 0.35, 0.02f, Vector4(0.5f, 1.f, 1.f, 1.f));
+			//NCLDebug::DrawThickLine(b, b + tbc * 0.35, 0.02f, Vector4(0.5f, 1.f, 1.f, 1.f));
+			//NCLDebug::DrawThickLine(c, c + tac * 0.35, 0.02f, Vector4(0.5f, 1.f, 1.f, 1.f));
+			//NCLDebug::DrawThickLine(c, c + tbc * 0.35, 0.02f, Vector4(0.5f, 1.f, 1.f, 1.f));
 
+			//NCLDebug::DrawThickLine(ab, ab + tab * 0.35, 0.02f, Vector4(0.5f, 1.f, 0.f, 1.f));
+			//NCLDebug::DrawThickLine(bc, bc + tbc * 0.35, 0.02f, Vector4(0.5f, 1.f, 0.f, 1.f));
+			//NCLDebug::DrawThickLine(ac, ac + tac * 0.35, 0.02f, Vector4(0.5f, 1.f, 0.f, 1.f));
 
 			//HERMITE SPLINE!!!
 			//float N1 = 7.f * gp2.x - 34 * gp3.x + 52 * gp4.x - 24 * gp5.x;
@@ -1361,77 +1652,7 @@ void FEM6Noded::Render_DrawingToVisualiser()
 				//+ tbc * T8
 				//+ tac * T9;
 
-			if (Window::GetKeyboard()->KeyDown(KEYBOARD_B))
-			{
-				float TX = -gp2.x + 5 * gp3.x - 8 * gp4.x + 4 * gp5.x;
-				float TY = -gp2.y + 5 * gp3.y - 8 * gp4.y + 4 * gp5.y;
-				float TZ = -gp2.z + 5 * gp3.z - 8 * gp4.z + 4 * gp5.z;
-
-				float T1 = 4 * gp2.y - 16 * gp3.y + 20 * gp4.y - 8 * gp5.y;
-				float T2 = 4 * gp2.x - 16 * gp3.x + 20 * gp4.x - 8 * gp5.x;
-				float T3 = 4 * gp2.z - 16 * gp3.z + 20 * gp4.z - 8 * gp5.z;
-				
-				float T4 = gp.x - 10 * gp2.x + 29 * gp3.x - 32 * gp4.x + 12 * gp5.x;
-				float T5 = gp.y - 10 * gp2.y + 29 * gp3.y - 32 * gp4.y + 12 * gp5.y;
-				float T6 = gp.z - 10 * gp2.z + 29 * gp3.z - 32 * gp4.z + 12 * gp5.z;
-
-
-
-
-				float T7 = 4 * (-gp2.x + gp2.z) + 16 * (gp3.x - gp3.z) + 20 * (-gp4.x + gp4.z) + 8 * (gp5.x - gp5.z);
-				float T8 = 4 * (gp2.x - gp2.y) + 16 * (-gp3.x + gp3.y) + 20 * (gp4.x - gp4.y) + 8 * (-gp5.x + gp5.y);
-				float T9 = 4 * (-gp2.x - gp2.z) + 16 * (gp3.x + gp3.z) + 20 * (-gp4.x - gp4.z) + 8 * (gp5.x + gp5.z);
-
-				float T7X = 4 * (- gp2.y + gp2.z) + 16 * (gp3.y - gp3.z) + 20 * (- gp4.y + gp4.z) + 8 * (gp5.y - gp5.z);
-				float T8Y = 4 * (- gp2.y - gp2.z) + 16 * (gp3.y + gp3.z) + 20 * (- gp4.y - gp4.z) + 8 * (gp5.y + gp5.z);
-				float T9Z = 4 * (gp2.y - gp2.z) + 16 * (- gp3.y + gp3.z) + 20 * (gp4.y - gp4.z) + 8 * (- gp5.y + gp5.z);
-
-				if (Window::GetKeyboard()->KeyDown(KEYBOARD_N))
-					T5 = 0.0f;
-				if (Window::GetKeyboard()->KeyDown(KEYBOARD_M))
-					T4 = 0.0f;
-
-				float f = -1.5;
-
-				//p = a * N1
-				//	+ b * N2
-				//	+ c * N3
-				//	+ ab * N4
-				//	+ bc * N5
-				//	+ ac * N6
-				//	+ (bc - ab) * T7X * n23 * 0.5f
-				//	+ (ac - ab) * T7 * n23 * 0.5f
-				//	//+ tab * T7 * n23
-				//	+ ((b - a)) * T8 * n23 * 0.5f
-				//	+ ((c - a)) * T8Y * n23 * 0.5f
-
-				//	+ ((b - a))  * T9 * n23 * 0.5f
-				//	+ ((b - c))  * T9Z * n23 * 0.5f
-
-				//	+ (b - a) * T1 * T4 * f
-				//	+ (c - a) * T3 * T4 * f
-
-				//	+ (a - b) * T2 * T5 * f
-				//	+ (c - b) * T3 * T5 * f
-
-				//	+ (b - c) * T1 * T6 * f
-				//	+ (a - c) * T2 * T6 * f;
-
-					//+ (bc - a) * -2.0f * TX
-					//+ (ac - b) * -2.0f * TY
-					//+ (ab - c) * -2.0f * TZ;
-
-
-					//+ (b-a) * 0.5 * T7;
-					//+ ((a-c)+(a-b)) * 0.5 * T1;
-
-				NCLDebug::DrawThickLine(ab, ab + (bc - ab) * 0.35, 0.02f, Vector4(0.5f, 1.f, 1.f, 1.f));
-				NCLDebug::DrawThickLine(bc, bc + (b - a) * 0.35, 0.02f, Vector4(0.5f, 1.f, 1.f, 1.f));
-				NCLDebug::DrawThickLine(ac, ac + (b - a) * 0.35, 0.02f, Vector4(0.5f, 1.f, 1.f, 1.f));
-				NCLDebug::DrawThickLine(ab, ab + (ac - ab) * 0.35, 0.02f, Vector4(0.5f, 1.f, 1.f, 1.f));
-				NCLDebug::DrawThickLine(bc, bc + (c - a) * 0.35, 0.02f, Vector4(0.5f, 1.f, 1.f, 1.f));
-				NCLDebug::DrawThickLine(ac, ac + (b - c) * 0.35, 0.02f, Vector4(0.5f, 1.f, 1.f, 1.f));
-			}
+			
 
 			return p;
 		};
@@ -1441,6 +1662,7 @@ void FEM6Noded::Render_DrawingToVisualiser()
 		{
 #if 1
 			NCLDebug::DrawHairLine(v1, v2, Vector4(gp.x, gp.y, gp.z, 1.f));
+			//NCLDebug::DrawHairLine(v1, v2, Vector4(1.f, 1.f, 1.f, 1.f));
 #else
 			Vector3 norm = v2 - v1;
 			norm.Normalise();
