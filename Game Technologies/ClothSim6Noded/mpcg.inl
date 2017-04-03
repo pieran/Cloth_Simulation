@@ -62,7 +62,8 @@ void MPCG<T>::Solve()
 template<class T>
 void MPCG<T>::SolveWithGuess(const std::vector<Vector3>& guess)
 {
-	memcpy(&m_X[0].x, &guess[0].x, m_NumTotal * sizeof(Vector3));
+	memset(&m_X[0].x, 0, m_NumTotal * sizeof(Vector3));
+	memcpy(&m_X[0].x, &guess[0].x, guess.size() * sizeof(Vector3));
 	Solve_Algorithm();
 
 	m_ProfilingAverageIterations_Sum += m_Iterations;

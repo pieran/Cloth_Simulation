@@ -47,6 +47,23 @@ void NCLDebug::DrawThickLine(const Vector3& start, const Vector3& end, float lin
 	DrawPoint(end, line_width * 0.5f, colour);
 }
 
+void NCLDebug::DrawThickLine(const Vector3& start, const Vector3& end, float line_width, const Vector4& colour1, const Vector4& colour2)
+{
+	//For Depth Sorting
+	Vector3 midPoint = (start + end) * 0.5f;
+	float camDist = Vector3::Dot(midPoint - m_CameraPosition, midPoint - m_CameraPosition);
+
+	//Add to Data Structures
+	m_ThickLines.push_back(Vector4(start.x, start.y, start.z, line_width));
+	m_ThickLines.push_back(colour1);
+
+	m_ThickLines.push_back(Vector4(end.x, end.y, end.z, camDist));
+	m_ThickLines.push_back(colour2);
+
+	DrawPoint(start, line_width * 0.5f, colour1);
+	DrawPoint(end, line_width * 0.5f, colour2);
+}
+
 void NCLDebug::DrawHairLine(const Vector3& start, const Vector3& end, const Vector4& colour)
 {
 	m_HairLines.push_back(Vector4(start.x, start.y, start.z, 1.0f));

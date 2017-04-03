@@ -17,13 +17,16 @@
 
 
 
+
 typedef Eigen::Matrix<float, 12, 12> StiffnessMatrix;
 
 typedef Eigen::Matrix<float, 3, 18> BMatrix;
 typedef Eigen::Matrix<float, 2, 2>  JaMatrix;
 typedef Eigen::Matrix<float, 6, 18> GMatrix;
 typedef Eigen::Matrix<float, 2, 6> Mat26;
+typedef Eigen::Matrix<float, 2, 15> BaseMatrix;
 typedef Eigen::Matrix<float, 18, 1> VDisplacement;
+typedef Eigen::Matrix<float, 3, 45> BMatrix_C1;
 
 
 class FEM6Noded
@@ -37,7 +40,7 @@ public:
 	~FEM6Noded();
 
 	//Simulation
-	void simulation_OnClothDesignChanged(uint nTris, FETriangle* tris, uint nVerts, FEVertDescriptor* verts);
+	void simulation_OnClothDesignChanged(uint nTris, FETriangle* tris, uint nVerts, FEVertDescriptor* verts, uint nTangents, Vector3* tangents);
 	void Simulation_StepSimulation(float dt);
 
 	void UpdateConstraints();
@@ -69,26 +72,36 @@ protected:
 
 	void BuildTransformationMatrix(const FETriangle& tri, const std::vector<Vector3>& pos, const Vec3& gaussPoint, const float warp_angle, Mat33& out_t, JaMatrix& out_ja, Mat26& out_dn);
 
-	void CalcBMatrix(const FETriangle& tri, const std::vector<Vector3>& pos, const Vec3& gaussPoint, const float warp_angle, const VDisplacement& displacements, BMatrix& out_b, JaMatrix& out_ja, GMatrix& out_g);
 
+	void BuildNaturalCoordinateBasisVectors(const FETriangle& tri, const Vector3& gaussPoint, BaseMatrix& out_dn);
+	void CalcRotationC1(const FETriangle& tri, const std::vector<Vector3>& pos, const std::vector<Vector3>& tans, const Vector3& gaussPoint, float warp_angle, Eigen::Matrix3f& out_rot, JaMatrix& out_ja, BaseMatrix& out_dn);
+
+
+	void CalcBMatrix(const FETriangle& tri, const std::vector<Vector3>& pos, const std::vector<Vector3>& tans, const Vec3& gaussPoint, const float warp_angle, const Eigen::Matrix<float, 45, 1>& displacements, BMatrix_C1& out_b, JaMatrix& out_ja, Eigen::Matrix<float, 6, 45>& out_g);
 protected:
 
 	Eigen::Matrix<float, 12, 3> GaussPoint12;
 	Eigen::Matrix<float, 12, 1> GaussWeight12;
 
+	Mat33 E; //Elasticity Matrix!!
+
 
 	uint m_NumWidth, m_NumHeight;
 	uint m_NumTotal, m_NumTriangles;
+	uint m_NumTangents;
 	float m_TotalArea;
 
 	float						m_TimeStep;
 	uint						m_StepCounter;
 	uint						m_StepsBeforeIncrease;
+	uint						m_RenderMode;
 	//Phyxel Data
 
 	std::vector<Vector3>		m_PhyxelsPos;
+	std::vector<Vector3>        m_PhyxelsTangent;
 	std::vector<Vector3>		m_PhyxelsPosTemp;	//Temp Positions to validate timestep
 	std::vector<Vector3>		m_PhyxelsPosInitial;
+	std::vector<Vector3>        m_PhyxelsTangentInitial;
 	std::vector<Vector3>		m_PhyxelsVel;
 	std::vector<Vector3>		m_PhyxelsVelChange;
 	std::vector<Vector3>		m_PhyxelForces;

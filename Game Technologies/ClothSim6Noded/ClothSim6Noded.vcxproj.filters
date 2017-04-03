@@ -48,6 +48,12 @@
     <ClCompile Include="FEM6Noded.cpp">
       <Filter>Source Files\Simulation</Filter>
     </ClCompile>
+    <ClCompile Include="Sim_6Noded_ManTangents.cpp">
+      <Filter>Source Files\Simulation</Filter>
+    </ClCompile>
+    <ClCompile Include="utils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GraphObject.h">
@@ -81,6 +87,12 @@
       <Filter>Header Files\Simulation</Filter>
     </ClInclude>
     <ClInclude Include="PArray.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Sim_6Noded_ManTangents.h">
+      <Filter>Header Files\Simulation</Filter>
+    </ClInclude>
+    <ClInclude Include="utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

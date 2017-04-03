@@ -129,6 +129,8 @@
     <ClCompile Include="MyScene.cpp" />
     <ClCompile Include="ProfilingTimer.cpp" />
     <ClCompile Include="SimulationProfiler.cpp" />
+    <ClCompile Include="Sim_6Noded_ManTangents.cpp" />
+    <ClCompile Include="utils.cpp" />
     <ClCompile Include="VideoEncoder.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -141,7 +143,9 @@
     <ClInclude Include="ProfilingTimer.h" />
     <ClInclude Include="SimulationDefines.h" />
     <ClInclude Include="SimulationProfiler.h" />
+    <ClInclude Include="Sim_6Noded_ManTangents.h" />
     <ClInclude Include="SparseRowMatrix.h" />
+    <ClInclude Include="utils.h" />
     <ClInclude Include="VideoEncoder.h" />
   </ItemGroup>
   <ItemGroup>

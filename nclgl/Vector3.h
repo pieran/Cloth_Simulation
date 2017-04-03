@@ -50,6 +50,22 @@ public:
 	{
 		return Vector3((y*b.z) - (z*b.y), (z*b.x) - (x*b.z), (x*b.y) - (y*b.x));
 	}
+	static Vector3 ClampVars(const Vector3& in, float lwr, float upr)
+	{
+		Vector3 out = in;
+		for (int i = 0; i < 3; ++i)
+		{ 
+			if (out[i] > lwr)
+			{
+				if (out[i] > upr)
+					out[i] = upr;
+			}
+			else
+				out[i] = lwr;
+		};
+
+		return out;
+	}
 
 	Vector3& Normalise() {
 		float length = Length();

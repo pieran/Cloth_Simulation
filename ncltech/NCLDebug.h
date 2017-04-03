@@ -54,6 +54,7 @@ class NCLDebug
 public:
 	static void DrawPoint(const Vector3& pos, float point_radius, const Vector4& colour = Vector4(1.0f, 1.0f, 1.0f, 1.0f));
 	static void DrawThickLine(const Vector3& start, const Vector3& end, float line_width, const Vector4& colour = Vector4(1.0f, 1.0f, 1.0f, 1.0f));
+	static void DrawThickLine(const Vector3& start, const Vector3& end, float line_width, const Vector4& colour1, const Vector4& colour2);
 	static void DrawHairLine(const Vector3& start, const Vector3& end, const Vector4& colour = Vector4(1.0f, 1.0f, 1.0f, 1.0f));
 
 	static void DrawMatrix(const Matrix4& transform_mtx, float scale = 1.0f);

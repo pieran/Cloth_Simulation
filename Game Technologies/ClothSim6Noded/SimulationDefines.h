@@ -21,6 +21,12 @@ struct FETriangle
 		v4 = d;
 		v5 = e;
 		v6 = f;
+
+		for (int i = 0; i < 9; ++i)
+		{
+			tangents[i] = 0;
+			tan_multipliers[i] = 1.f;
+		}
 	}
 
 	union
@@ -28,9 +34,16 @@ struct FETriangle
 		struct
 		{
 			uint v1, v2, v3, v4, v5, v6;
+			uint t12, t13, t21, t23, t31, t32, tab, tbc, tca;
+			float t12_mult, t13_mult, t21_mult, t23_mult, t31_mult, t32_mult, tab_mult, tbc_mult, tca_mult;
 		};
 
-		uint phyxels[6]; //outer i,j,k -> inner ij, jk, ki
+		struct
+		{
+			uint phyxels[6]; //outer i,j,k -> inner ij, jk, ki
+			uint tangents[9];
+			float tan_multipliers[9];
+		};
 	};
 };
 

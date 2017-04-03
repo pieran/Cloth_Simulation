@@ -1,4 +1,8 @@
 
+
+#define FORCE_DRAG_2D 1
+
+
 #include "MyScene.h"
 
 #include <nclgl/OBJMesh.h>
@@ -11,6 +15,7 @@
 
 MyScene::MyScene(Window& window) : Scene(window), m_Sim(NULL), m_SimTimestep(1.0f / 60.0f), m_SimPaused(true)
 {
+	m_Drag2D = true;
 
 	m_InvLightDirection = Vector3(0.5f, 1.0f, 1.0f);
 	m_InvLightDirection.Normalise();
@@ -82,10 +87,9 @@ void MyScene::OnResize()
 }
 
 
-void MyScene::InitialiseCloth()
+void MyScene::InitialiseCloth(uint visual_subdivisions)
 {
 	const Matrix4 transform = Matrix4();// Matrix4::Rotation(20.f, Vector3(1.f, 0.f, 0.f));// Matrix4::Scale(Vector3(0.75f, 0.75f, 1.0f));
-	const uint visual_subdivisions = 4;
 	const uint subdivisions = visual_subdivisions * 2 + 1;
 
 	uint num_verts = subdivisions * subdivisions;
@@ -94,6 +98,9 @@ void MyScene::InitialiseCloth()
 	uint num_quads = (subdivisions - 1) * (subdivisions - 1) / 4;
 	uint num_tris = num_quads * 2;
 	FETriangle* tris = new FETriangle[num_tris];
+
+	uint num_tangents = visual_subdivisions * 6 + num_quads * 9;
+	Vector3* tangents = new Vector3[num_tangents];
 
 	float width = 1.f;
 	float height = 1.f;
@@ -128,6 +135,8 @@ void MyScene::InitialiseCloth()
 
 	uint tcount = 0;
 	uint qcount = 0;
+	uint tans[15];
+
 //	num_tris /= 2;
 	for (uint x = 2; x < subdivisions; x += 2)
 	{
@@ -146,49 +155,303 @@ void MyScene::InitialiseCloth()
 			uint mid = subdivisions*(y - 1) + x - 1;
 
 
+			//uint quad_x = (x >> 1) - 1;
+			//uint quad_y = (y >> 1) - 1;
+			//uint tan_width = visual_subdivisions * 9 + 3;
+			//
+			//uint tan_y_off = tan_width * quad_y + visual_subdivisions * 3;
+			//uint tan_x_off = quad_x * 9 + 3;
+
+
+			//if (y == 2)
+			//{
+			//	for (int i = 0; i < 3; ++i)
+			//	{
+			//		tans[i] = quad_x * 3 + i;
+			//	}
+			//}
+			//else
+			//{
+			//	for (int i = 0; i < 3; ++i)
+			//	{
+			//		tans[i] = tan_y_off + tan_x_off - tan_width + 3 + i;
+			//	}
+			//}
+
+			//for (int i = 3; i < 15; ++i)
+			//	tans[i] = tan_y_off + tan_x_off + i - 6;
+		
+			//tangents[tans[0]] = vertices[b].pos - vertices[a].pos;
+			//tangents[tans[1]] = vertices[d].pos - vertices[ab].pos;
+			//tangents[tans[2]] = vertices[a].pos - vertices[b].pos;
+			//
+			//tangents[tans[3]] = vertices[d].pos - vertices[a].pos;
+			//tangents[tans[4]] = vertices[b].pos - vertices[ad].pos;
+			//tangents[tans[5]] = vertices[a].pos - vertices[d].pos;
+
+			//tangents[tans[6]] = vertices[d].pos - vertices[b].pos;
+			//tangents[tans[7]] = -(vertices[a].pos - vertices[mid].pos);
+			//tangents[tans[8]] = vertices[b].pos - vertices[d].pos;
+
+			//tangents[tans[9]] = vertices[c].pos - vertices[d].pos;
+			//tangents[tans[10]] = -(vertices[b].pos - vertices[dc].pos);
+			//tangents[tans[11]] = vertices[d].pos - vertices[c].pos;
+			//
+			//tangents[tans[12]] = vertices[c].pos - vertices[b].pos;
+			//tangents[tans[13]] = -(vertices[d].pos - vertices[bc].pos);
+			//tangents[tans[14]] = vertices[b].pos - vertices[c].pos;
+
+
 
 			//Alternate triangle orientation to allow FEM to better represent the forces
-			if (false)//((y ^ x) & 0x2) == 0)
-			{
-				//tris[tcount++] = FETriangle(a, d, c, ad, dc, mid);
-				//tris[tcount++] = FETriangle(a, c, b, mid, bc, ab);
+			if (true)//((y ^ x) & 0x2) == 0)
+			{				
+				tris[tcount++] = FETriangle(a, c, b, mid, bc, ab);
+				tris[tcount++] = FETriangle(a, d, c, ad, dc, mid);
 
-				tris[tcount++] = FETriangle(a, d, b, ad, mid, ab);
-				tris[tcount++] = FETriangle(d, c, b, dc, bc, mid);
 			}
 			else
 			{
-				tris[tcount++] = FETriangle( d, b, a, mid, ab, ad);
-				tris[tcount++] = FETriangle( d, c, b, dc, bc, mid);
+				FETriangle& tri = tris[tcount++];
+				tri = FETriangle( d, b, a, mid, ab, ad);
+				tri.t12 = tans[8];
+				tri.t13 = tans[5];
+				tri.t21 = tans[6];
+				tri.t23 = tans[2];
+				tri.t31 = tans[3];
+				tri.t32 = tans[0];
+				tri.tab = tans[7];
+				tri.tbc = tans[1];
+				tri.tca = tans[4];
+
+				tri.t31_mult = -1.f;
+				tri.t32_mult = -1.f;
+				tri.tab_mult = -1.f;
+
+
+				FETriangle& tri2 = tris[tcount++];
+				tri2 = FETriangle( d, c, b, dc, bc, mid);
+				tri2.t12 = tans[9];
+				tri2.t13 = tans[8];
+				tri2.t21 = tans[11];
+				tri2.t23 = tans[14];
+				tri2.t31 = tans[6];
+				tri2.t32 = tans[12];
+				tri2.tab = tans[10];
+				tri2.tbc = tans[13];
+				tri2.tca = tans[7];
+
+				tri2.t31_mult = -1.f;
+				tri2.t32_mult = -1.f;
+				tri2.tab_mult = -1.f;
+				tri2.tbc_mult = -1.f; //TBC tangent reversed on alt tri of each quad
 			}
 		}
 	}
 
 
+	//Build Tangents
+	tcount = 0;
+	for (uint x = 0; x < visual_subdivisions; x++)
+	{
+		for (uint y = 0; y < visual_subdivisions; y++)
+		{
+			uint quad_idx = x * visual_subdivisions + y;
+			uint quad_idx_tl = (x-1) * visual_subdivisions + (y-1);
+			uint quad_idx_top = x * visual_subdivisions + (y - 1);
+			uint quad_idx_left = (x-1) * visual_subdivisions + y;
 
+			FETriangle& t_top = tris[quad_idx * 2];
+			FETriangle& t_btm = tris[quad_idx * 2 + 1];
+			
+			t_top.t31_mult = -1.f;
+			t_top.t32_mult = -1.f;
+			//t_top.t21_mult = -1.f;
+
+			t_btm.t31_mult = -1.f;
+			t_btm.t32_mult = -1.f;
+			t_btm.tca_mult = -1.f;
+
+
+			if (y == 0)
+			{
+				if (x == 0)
+				{
+					tans[0] = tcount; tangents[tcount++] = vertices[t_top.v3].pos - vertices[t_top.v1].pos;				
+					tans[1] = tcount; tangents[tcount++] = vertices[t_top.v2].pos - vertices[t_top.v6].pos;
+					tans[2] = tcount; tangents[tcount++] = vertices[t_top.v1].pos - vertices[t_top.v3].pos;
+
+					tans[3] = tcount; tangents[tcount++] = vertices[t_btm.v2].pos - vertices[t_btm.v1].pos;
+					tans[4] = tcount; tangents[tcount++] = vertices[t_btm.v3].pos - vertices[t_btm.v4].pos;
+					tans[5] = tcount; tangents[tcount++] = vertices[t_btm.v1].pos - vertices[t_btm.v2].pos;
+
+					tans[6] = tcount; tangents[tcount++] = vertices[t_top.v2].pos - vertices[t_top.v1].pos;
+					tans[7] = tcount; tangents[tcount++] = vertices[t_top.v3].pos - vertices[t_top.v4].pos;
+					tans[8] = tcount; tangents[tcount++] = vertices[t_top.v1].pos - vertices[t_top.v2].pos;
+
+					tans[9] = tcount; tangents[tcount++] = vertices[t_btm.v3].pos - vertices[t_btm.v2].pos;
+					tans[10] = tcount; tangents[tcount++] = vertices[t_btm.v1].pos - vertices[t_btm.v5].pos;
+					tans[11] = tcount; tangents[tcount++] = vertices[t_btm.v2].pos - vertices[t_btm.v3].pos;
+
+					tans[12] = tcount; tangents[tcount++] = vertices[t_top.v2].pos - vertices[t_top.v3].pos;
+					tans[13] = tcount; tangents[tcount++] = vertices[t_top.v1].pos - vertices[t_top.v5].pos;
+					tans[14] = tcount; tangents[tcount++] = vertices[t_top.v3].pos - vertices[t_top.v2].pos;
+				}
+				else
+				{
+					FETriangle& t_left_top = tris[quad_idx_left * 2];
+					FETriangle& t_left_btm = tris[quad_idx_left * 2 + 1];
+
+					t_top.t13_mult = -1.f;
+					t_btm.t23_mult = -1.f;
+					t_btm.tab_mult = -1.f;
+
+					tans[0] = t_left_top.t31;
+					tans[1] = tcount; tangents[tcount++] = vertices[t_top.v2].pos - vertices[t_top.v6].pos;
+					tans[2] = tcount; tangents[tcount++] = vertices[t_top.v1].pos - vertices[t_top.v3].pos;
+
+					tans[3] = t_left_top.t32;
+					tans[4] = t_left_top.tbc;
+					tans[5] = t_left_top.t23;
+
+					tans[6] = tcount; tangents[tcount++] = vertices[t_top.v2].pos - vertices[t_top.v1].pos;
+					tans[7] = tcount; tangents[tcount++] = vertices[t_top.v3].pos - vertices[t_top.v4].pos;
+					tans[8] = tcount; tangents[tcount++] = vertices[t_top.v1].pos - vertices[t_top.v2].pos;
+
+					tans[9] = t_left_btm.t32;
+					tans[10] = tcount; tangents[tcount++] = vertices[t_btm.v1].pos - vertices[t_btm.v5].pos;
+					tans[11] = tcount; tangents[tcount++] = vertices[t_btm.v2].pos - vertices[t_btm.v3].pos;
+
+					tans[12] = tcount; tangents[tcount++] = vertices[t_top.v2].pos - vertices[t_top.v3].pos;
+					tans[13] = tcount; tangents[tcount++] = vertices[t_top.v1].pos - vertices[t_top.v5].pos;
+					tans[14] = tcount; tangents[tcount++] = vertices[t_top.v3].pos - vertices[t_top.v2].pos;
+				}			
+			}
+			else
+			{
+				FETriangle& t_top_top = tris[quad_idx_top * 2];
+				FETriangle& t_top_btm = tris[quad_idx_top * 2 + 1];
+
+				t_top.t32_mult = 1.f;
+				t_top.tca_mult = -1.f;
+				t_btm.t12_mult = -1.f;
+
+				if (x == 0)
+				{
+					tans[0] = t_top_btm.t23;
+					tans[1] = t_top_btm.tbc;
+					tans[2] = t_top_btm.t32;
+
+					tans[3] = t_top_btm.t21;
+					tans[4] = tcount; tangents[tcount++] = vertices[t_btm.v3].pos - vertices[t_btm.v4].pos;
+					tans[5] = tcount; tangents[tcount++] = vertices[t_btm.v1].pos - vertices[t_btm.v2].pos;
+
+					tans[6] = tcount; tangents[tcount++] = vertices[t_top.v2].pos - vertices[t_top.v1].pos;
+					tans[7] = tcount; tangents[tcount++] = vertices[t_top.v3].pos - vertices[t_top.v4].pos;
+					tans[8] = tcount; tangents[tcount++] = vertices[t_top.v1].pos - vertices[t_top.v2].pos;
+
+					tans[9] = tcount; tangents[tcount++] = vertices[t_btm.v3].pos - vertices[t_btm.v2].pos;
+					tans[10] = tcount; tangents[tcount++] = vertices[t_btm.v1].pos - vertices[t_btm.v5].pos;
+					tans[11] = tcount; tangents[tcount++] = vertices[t_btm.v2].pos - vertices[t_btm.v3].pos;
+
+					tans[12] = t_top_top.t23;
+					tans[13] = tcount; tangents[tcount++] = vertices[t_top.v1].pos - vertices[t_top.v5].pos;
+					tans[14] = tcount; tangents[tcount++] = vertices[t_top.v3].pos - vertices[t_top.v2].pos;
+				}
+				else
+				{
+					t_btm.t23_mult = -1.f;
+					t_btm.tab_mult = -1.f;
+					t_btm.t13_mult = -1.f;
+					t_top.t12_mult = -1.f;
+					t_top.t13_mult = -1.f;
+
+					FETriangle& t_topleft_top = tris[quad_idx_tl * 2];
+
+					FETriangle& t_left_top = tris[quad_idx_left * 2];
+					FETriangle& t_left_btm = tris[quad_idx_left * 2 + 1];
+
+					tans[0] = t_top_btm.t23; // t_left_top.t31;
+					tans[1] = t_top_btm.tbc;
+					tans[2] = t_top_btm.t32;
+
+					tans[3] = t_top_btm.t21;
+					//tans[3] = t_left_top.t32;
+					tans[4] = t_left_top.tbc;
+					tans[5] = t_left_top.t23;
+
+					tans[6] = t_topleft_top.t21;
+					tans[7] = tcount; tangents[tcount++] = vertices[t_top.v3].pos - vertices[t_top.v4].pos;
+					tans[8] = tcount; tangents[tcount++] = vertices[t_top.v1].pos - vertices[t_top.v2].pos;
+
+					tans[9] = t_left_btm.t32;
+					tans[10] = tcount; tangents[tcount++] = vertices[t_btm.v1].pos - vertices[t_btm.v5].pos;
+					tans[11] = tcount; tangents[tcount++] = vertices[t_btm.v2].pos - vertices[t_btm.v3].pos;
+
+					tans[12] = t_top_top.t23;
+					tans[13] = tcount; tangents[tcount++] = vertices[t_top.v1].pos - vertices[t_top.v5].pos;
+					tans[14] = tcount; tangents[tcount++] = vertices[t_top.v3].pos - vertices[t_top.v2].pos;
+				}
+				
+			}
+
+
+
+
+			//Set Tangents
+			t_top.t12 = tans[6];
+			t_top.t13 = tans[0];
+			t_top.t21 = tans[8];
+			t_top.t23 = tans[14];
+			t_top.t31 = tans[2];
+			t_top.t32 = tans[12];
+			t_top.tab = tans[7];
+			t_top.tbc = tans[13];
+			t_top.tca = tans[1];
+
+			t_btm.t12 = tans[3];
+			t_btm.t13 = tans[6];
+			t_btm.t21 = tans[5];
+			t_btm.t23 = tans[9];
+			t_btm.t31 = tans[8];
+			t_btm.t32 = tans[11];
+			t_btm.tab = tans[4];
+			t_btm.tbc = tans[10];
+			t_btm.tca = tans[7];
+		}
+	}
+
+#if 0 //TEST FOR MISJOINTED TANGENTS
+	for (int i = 0; i < tcount; ++i)
+	{
+		tangents[i].z = (rand() % 1000) / 500.f - 1.f;
+	}
+#endif
 
 	if (m_Sim)
 		delete m_Sim;
 
-	m_Sim = new FEM6Noded();
-	m_Sim->simulation_OnClothDesignChanged(num_tris, tris, num_verts, vertices);
+	m_Sim = new FESimulation();
+	m_Sim->simulation_OnClothDesignChanged(num_tris, tris, num_verts, vertices, num_tangents, tangents);
 
 	delete[] tris;
 	delete[] vertices;
+	delete[] tangents;
 }
 
+uint visual_subdivisions = 1;
 bool MyScene::InitialiseGL()
 {
-	InitialiseCloth();
+	InitialiseCloth(visual_subdivisions);
 
 	m_Camera->SetPosition(Vector3(-3.0f, 10.0f, 10.0f));
 	m_Camera->SetPitch(-20.f);
 
 
 	//Create Ground
-	GameObject* ground = BuildCuboidObject("Ground", Vector3(0.0f, -1.001f, 0.0f), Vector3(20.0f, 1.0f, 20.0f), 0.0f, Vector4(0.2f, 0.5f, 1.0f, 1.0f));
+	//GameObject* ground = BuildCuboidObject("Ground", Vector3(0.0f, -1.001f, 0.0f), Vector3(20.0f, 1.0f, 20.0f), 0.0f, Vector4(0.2f, 0.5f, 1.0f, 1.0f));
 
-	this->AddGameObject(ground);
+	//this->AddGameObject(ground);
 
 
 	LoadCameraData();
@@ -208,10 +471,23 @@ bool m_OrthoMode = false;
 float m_OrthoScale = 2.5f;
 
 bool dragged = false;
+bool orig_static = false;
 float drag_depth = 0.f;
 uint drag_idx = 0;
 void MyScene::UpdateScene(float dt)
 {
+	const Vector4 status_color = Vector4(1.f, 0.9f, 0.9f, 1.f);
+	NCLDebug::AddStatusEntry(status_color, "    - Step Simulation Once [R]");
+	NCLDebug::AddStatusEntry(status_color, "    - Toggle Simulation - %s [G]", m_SimPaused ? "Paused" : "Running");
+	NCLDebug::AddStatusEntry(status_color, "    - Drag Mode: %s [ctrl + T]", m_Drag2D ? "2D" : "3D");
+	NCLDebug::AddStatusEntry(status_color, "");
+	NCLDebug::AddStatusEntry(status_color, "    - Show Rotations [F]");
+	NCLDebug::AddStatusEntry(status_color, "    - Toggle Number of Elements [ctrl + space]");
+	NCLDebug::AddStatusEntry(status_color, "    - Reset Simulation [ctrl + R]");
+	NCLDebug::AddStatusEntry(status_color, "    - Render: %s [ctrl + X]", m_Sim->m_RenderMode == 0 ? "Stress 1000:1" : m_Sim->m_RenderMode == 1 ? "Strain 1:1" : "Triangles");
+	NCLDebug::AddStatusEntry(status_color, "");
+	NCLDebug::AddStatusEntry(status_color, "    - Start Recording Video [ctrl + P]");
+	NCLDebug::AddStatusEntry(status_color, "    - Toggle HUD Elements [ctrl + H]");
 
 	if (!m_SimPaused)
 		m_Sim->Simulation_StepSimulation(m_SimTimestep);
@@ -299,15 +575,35 @@ void MyScene::UpdateScene(float dt)
 
 	if (Window::GetKeyboard()->KeyTriggered(KEYBOARD_R))
 	{
+		for (int i = 0; i < 5; ++i)
 		m_Sim->Simulation_StepSimulation(m_Sim->m_TimeStep);
 		m_Encoder->EndEncoding();
 	}
 
+
 	if (Window::GetKeyboard()->KeyDown(KEYBOARD_CONTROL))
 	{
+		if (Window::GetKeyboard()->KeyTriggered(KEYBOARD_X))
+		{
+			m_Sim->m_RenderMode = (m_Sim->m_RenderMode + 1) % 3;
+		}
+		if (Window::GetKeyboard()->KeyTriggered(KEYBOARD_T))
+		{
+			m_Drag2D = !m_Drag2D;
+		}
+
+		if (Window::GetKeyboard()->KeyTriggered(KEYBOARD_SPACE))
+		{
+			if (visual_subdivisions == 1)
+				visual_subdivisions = 2;
+			else
+				visual_subdivisions = 1;
+			this->InitialiseCloth(visual_subdivisions);
+		}
+
 		if (Window::GetKeyboard()->KeyTriggered(KEYBOARD_R))
 		{
-			this->InitialiseCloth();
+			this->InitialiseCloth(visual_subdivisions);
 		}
 
 
@@ -369,6 +665,11 @@ void MyScene::UpdateScene(float dt)
 
 	if (!dragged || !Window::GetMouse()->ButtonDown(MOUSE_LEFT))
 	{
+		if (dragged && !orig_static)
+		{
+			m_Sim->m_PhyxelIsStatic[drag_idx] = false;
+			m_Sim->UpdateConstraints();
+		}
 		dragged = false;
 
 		int best = -1;
@@ -389,11 +690,24 @@ void MyScene::UpdateScene(float dt)
 
 		if (best >= 0)
 		{
-			if (Window::GetMouse()->ButtonDown(MOUSE_LEFT) && !Window::GetMouse()->ButtonHeld(MOUSE_LEFT))
+			if (Window::GetMouse()->ButtonDown(MOUSE_RIGHT) && !Window::GetMouse()->ButtonHeld(MOUSE_RIGHT))
+			{
+				m_Sim->m_PhyxelIsStatic[best] = !m_Sim->m_PhyxelIsStatic[best];
+				m_Sim->UpdateConstraints();
+				m_Sim->m_PhyxelsVel[best] = Vector3(0.f, 0.f, 0.f);
+			}
+			else if (Window::GetMouse()->ButtonDown(MOUSE_LEFT) && !Window::GetMouse()->ButtonHeld(MOUSE_LEFT))
 			{
 				dragged = true;
 				drag_depth = best_depth;
 				drag_idx = best;
+				orig_static = m_Sim->m_PhyxelIsStatic[drag_idx];
+				m_Sim->m_PhyxelsVel[drag_idx] = Vector3(0.f, 0.f, 0.f);
+				if (!orig_static)
+				{
+					m_Sim->m_PhyxelIsStatic[drag_idx] = true;
+					m_Sim->UpdateConstraints();
+				}
 			}
 			NCLDebug::DrawPoint(m_Sim->m_PhyxelsPos[best], 0.03f, Vector4(1.f, 1.f, 1.f, 1.f));			
 		}
@@ -405,8 +719,13 @@ void MyScene::UpdateScene(float dt)
 		
 		Vector2 ms_cs = mousePos / windowTrans * 2.f - 1.f;
 		Vector3 cs = Vector3(ms_cs.x, ms_cs.y, drag_depth);
+		Vector3 new_pos = Matrix4::Inverse(projView) * cs;
+		m_Sim->m_PhyxelsPos[drag_idx].x = new_pos.x;
+		m_Sim->m_PhyxelsPos[drag_idx].y = new_pos.y;
 
-		m_Sim->m_PhyxelsPos[drag_idx] = Matrix4::Inverse(projView) * cs;
+		if (!m_Drag2D)
+			m_Sim->m_PhyxelsPos[drag_idx].z = new_pos.z;
+
 
 		NCLDebug::DrawPoint(m_Sim->m_PhyxelsPos[drag_idx], 0.03f, Vector4(1.f, 0.8f, 0.5f, 1.f));
 	}

@@ -59,7 +59,7 @@ void FEM3Noded::simulation_OnClothDesignChanged(ClothDesignEntity<3>* design)
 
 		if (!m_PhyxelIsStatic[i])
 		{
-			m_PhyxelForces[i] = GRAVITY / float(m_NumTotal);
+			m_PhyxelForces[i] = Vector3(0.f, 0.f, 0.f);// GRAVITY / float(m_NumTotal);
 		}
 
 
